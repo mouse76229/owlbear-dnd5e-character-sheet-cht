@@ -10,6 +10,8 @@
   } from "../services/AncestryClassEnsurer";
   import type { Class } from "../types";
 
+  import { t_Class } from "../translations";
+
   $: atLeastLevelOne = $pc.level >= 1;
 
   function onClassChange(e: Event) {
@@ -25,9 +27,9 @@
 </script>
 
 <div class="flex justify-between">
-  <h2>CLASS</h2>
+  <h2>職業</h2>
   {#if !atLeastLevelOne}
-    <div>(Must Be At Least Level 1)</div>
+    <div>(必須至少達到 1 等級)</div>
   {/if}
   <div class="flex items-center gap-1">
     <input
@@ -37,7 +39,7 @@
       checked={$pc.hasCustomClass}
       on:input={onToggleCustomClass}
     />
-    <label for="customClass">Custom</label>
+    <label for="customClass">自訂</label>
   </div>
 </div>
 {#if $pc.hasCustomClass}
@@ -55,7 +57,7 @@
   >
     {#each CLASSES as clazz}
       <option value={clazz}>
-        {clazz}
+        {t_Class(clazz)}
       </option>
     {/each}
   </select>

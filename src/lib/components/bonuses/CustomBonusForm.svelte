@@ -22,18 +22,20 @@
     RollBonusTo,
   } from "../../types";
 
+  import { t_Stat } from "../../translations";
+
   const dispatch = createEventDispatcher();
 
   $: allWeapons = WEAPONS.concat(
     $pc.customGear
       .filter((g) => g.type === "Weapon")
-      .map((g) => g as WeaponInfo) ?? []
+      .map((g) => g as WeaponInfo) ?? [],
   );
 
   $: allArmors = ARMORS.concat(
     $pc.customGear
       .filter((g) => g.type === "Armor")
-      .map((g) => g as ArmorInfo) ?? []
+      .map((g) => g as ArmorInfo) ?? [],
   );
 
   $: allSpells = SPELLS.concat($pc.customSpells ?? []);
@@ -60,7 +62,7 @@
   }
 
   let reqsMet = Boolean(name) && Boolean(desc);
-  let buttonText = "ADD";
+  let buttonText = "新增";
   $: {
     if (bonusTo === "stat" || bonusTo === "statRoll") {
       mdType = "stat";
@@ -69,7 +71,7 @@
       if (mdType === "stat") mdType = "";
       reqsMet = Boolean(name) && Boolean(desc);
     }
-    buttonText = reqsMet ? "ADD" : "Please add required fields";
+    buttonText = reqsMet ? "新增" : "請填寫必要欄位";
   }
 
   function addBonus() {
@@ -115,38 +117,49 @@
     $pc = $pc;
     dispatch("finish");
   }
+
+  const bonusToMap: Record<string, string> = {
+    attackRoll: "攻擊檢定",
+    damageRoll: "傷害檢定",
+    armorClass: "防禦等級",
+    hpRoll: "生命值檢定",
+    stat: "屬性值",
+    statRoll: "屬性檢定",
+    initiative: "先攻",
+    spellCastingCheck: "施法檢定",
+  };
 </script>
 
 <div class="flex flex-col gap-1 w-full">
-  <label for="name">Name</label>
-  <input id="name" type="text" placeholder="Poison" bind:value={name} />
-  <label for="desc">Description</label>
-  <input id="desc" placeholder="-2 CON for 10 rounds" bind:value={desc} />
-  <label for="type">What kind of bonus is it?</label>
+  <label for="name">名稱</label>
+  <input id="name" type="text" placeholder="例如：中毒" bind:value={name} />
+  <label for="desc">描述</label>
+  <input id="desc" placeholder="例如：10回合內 -2 體質" bind:value={desc} />
+  <label for="type">加值類型</label>
   <select id="type" bind:value={type}>
-    <option value="generic">Generic</option>
-    <option value="modifyAmt"> Numerical Modifier </option>
-    <option value="advantage"> Advantage </option>
-    <option value="disadvantage"> Disadvantage </option>
-    <option value="diceType"> Dice Type </option>
+    <option value="generic">一般</option>
+    <option value="modifyAmt"> 數值修正 </option>
+    <option value="advantage"> 優勢 </option>
+    <option value="disadvantage"> 劣勢 </option>
+    <option value="diceType"> 骰子類型 </option>
   </select>
   {#if type === "diceType" || type === "advantage" || type === "disadvantage"}
-    <label for="bto">Bonus To:</label>
+    <label for="bto">加值對象:</label>
     <select id="bto" bind:value={bonusTo}>
       {#each ROLL_BONUS_TOS as bto}
-        <option>{bto}</option>
+        <option value={bto}>{bonusToMap[bto] ?? bto}</option>
       {/each}
     </select>
   {:else if type === "modifyAmt"}
-    <label for="bto">Bonus To:</label>
+    <label for="bto">加值對象:</label>
     <select id="bto" bind:value={bonusTo}>
       {#each BONUS_TOS as bto}
-        <option>{bto}</option>
+        <option value={bto}>{bonusToMap[bto] ?? bto}</option>
       {/each}
     </select>
   {/if}
   {#if type === "modifyAmt"}
-    <label for="modifyAmt">By how much?</label>
+    <label for="modifyAmt">數值多少?</label>
     <input
       id="modifyAmt"
       type="number"
@@ -154,58 +167,56 @@
       bind:value={bonusAmount}
     />
   {:else if type === "diceType"}
-    <label for="diceType">Dice Type</label>
+    <label for="diceType">骰子類型</label>
     <select id="diceType" bind:value={diceType}>
       {#each DICE_TYPES as d}
         <option>{d}</option>
       {/each}
     </select>
   {/if}
-  <label for="metaDataType"
-    >Does this bonus target a specific item, spell, or stat?</label
-  >
+  <label for="metaDataType">此加值是否針對特定物品、法術或屬性?</label>
   <select id="metaDataType" bind:value={mdType}>
-    <option value="">No</option>
-    <option value="weapon">Equipped Weapon</option>
-    <option value="armor">Equipped Armor</option>
-    <option value="spell">Spell</option>
-    <option value="stat">Stat</option>
-    <option value="weaponType">Weapon Type</option>
+    <option value="">否</option>
+    <option value="weapon">裝備中武器</option>
+    <option value="armor">裝備中防具</option>
+    <option value="spell">法術</option>
+    <option value="stat">屬性</option>
+    <option value="weaponType">武器類型</option>
   </select>
 
   {#if mdType === "weapon"}
-    <label for="weapon">Which weapon?</label>
+    <label for="weapon">哪把武器?</label>
     <select id="weapon" bind:value={selectedWeapon}>
       {#each allWeapons as w}
-        <option>{w.name}</option>
+        <option value={w.name}>{w.l10n?.name ?? w.name}</option>
       {/each}
     </select>
   {:else if mdType === "armor"}
-    <label for="armor">Which armor?</label>
+    <label for="armor">哪件防具?</label>
     <select id="armor" bind:value={selectedArmor}>
       {#each allArmors as a}
-        <option>{a.name}</option>
+        <option value={a.name}>{a.l10n?.name ?? a.name}</option>
       {/each}
     </select>
   {:else if mdType === "spell"}
-    <label for="spell">Which spell?</label>
+    <label for="spell">哪個法術?</label>
     <select id="spell" bind:value={selectedSpell}>
       {#each allSpells as s}
-        <option>{s.name}</option>
+        <option value={s.name}>{s.l10n?.name ?? s.name}</option>
       {/each}
     </select>
   {:else if mdType === "stat"}
-    <label for="stat">Which stat?</label>
+    <label for="stat">哪個屬性?</label>
     <select id="stat" bind:value={selectedStat}>
       {#each STATS as s}
-        <option>{s}</option>
+        <option value={s}>{t_Stat(s)}</option>
       {/each}
     </select>
   {:else if mdType === "weaponType"}
-    <label for="weaponType">Which weapon type?</label>
+    <label for="weaponType">哪種武器類型?</label>
     <select id="weaponType" bind:value={weaponType}>
       {#each ["Melee", "Ranged"] as s}
-        <option>{s}</option>
+        <option value={s}>{s === "Melee" ? "近戰" : "遠程"}</option>
       {/each}
     </select>
   {/if}

@@ -19,7 +19,7 @@
   }
 </script>
 
-<h2>HP</h2>
+<h2>生命值</h2>
 <label for="hitpoints" />
 <input
   id="hitpoints"
@@ -31,7 +31,7 @@
 />
 
 <div class="flex gap-1 justify-between">
-  <div>Max: {calculateTotalHitPointsForPlayer($pc)}</div>
+  <div>最大值: {calculateTotalHitPointsForPlayer($pc)}</div>
   <div>
     <button on:click={decrMaxHp}><i class="material-icons">remove</i></button>
     <button on:click={incrMaxHp}><i class="material-icons">add</i></button>
@@ -40,5 +40,5 @@
 
 <button
   class="bg-black text-white rounded-md text-sm self-center px-2"
-  on:click={longRest}>Long Rest</button
+  on:click={longRest}>長休</button
 >

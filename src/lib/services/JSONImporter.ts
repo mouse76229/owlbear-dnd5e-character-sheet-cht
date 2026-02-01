@@ -158,6 +158,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
     return {
       bonusTo: "spellcastRoll",
       desc: "+1 to spellcasting checks",
+      l10n: { name: "施法優勢", desc: "施法檢定 +1" },
       bonusAmount: 1,
       type: "modifyAmt",
       ...commonBonusData,
@@ -168,6 +169,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         bonusTo: "attackRoll",
         type: "modifyAmt",
         desc: `${sdb.bonusTo}: +1 to attack rolls`,
+        l10n: { name: `${sdb.bonusTo}: 攻擊 +1`, desc: `${sdb.bonusTo}: 攻擊檢定 +1` },
         bonusAmount: 1,
         bonusIncreaseRatePerLevel: 0.5,
         metadata: { type: "weapon", weapon: sdb.bonusTo },
@@ -177,6 +179,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         bonusTo: "damageRoll",
         type: "modifyAmt",
         desc: `${sdb.bonusTo}: +1 to damage rolls`,
+        l10n: { name: `${sdb.bonusTo}: 傷害 +1`, desc: `${sdb.bonusTo}: 傷害 +1` },
         bonusAmount: 1,
         bonusIncreaseRatePerLevel: 0.5,
         metadata: { type: "weapon", weapon: sdb.bonusTo },
@@ -188,6 +191,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       bonusTo: "statRoll",
       type: "advantage",
       desc: `Advantage on ${sdb.bonusName} checks`,
+      l10n: { name: `${sdb.bonusName} 優勢`, desc: `${sdb.bonusName} 檢定優勢` },
       metadata: { type: "stat", stat: "STR" },
       ...commonBonusData,
     };
@@ -198,6 +202,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       bonusAmount: 1,
       metadata: { type: "armor", armor: sdb.bonusTo },
       desc: `+1 AC from ${sdb.bonusTo} armor`,
+      l10n: { name: "盔甲大師", desc: `穿著 ${sdb.bonusTo} 獲得 +1 AC` },
       ...commonBonusData,
     };
   } else if (sdb.name === "BackStabIncrease") {
@@ -206,6 +211,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       type: "modifyAmt",
       bonusAmount: 1,
       desc: "Your backstab deals +1 dice of damage",
+      l10n: { name: "背刺強化", desc: "背刺傷害增加一骰" },
       ...commonBonusData,
     };
   } else if (sdb.name === "AdvOnInitiative") {
@@ -213,6 +219,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       bonusTo: "initiativeRoll",
       type: "advantage",
       desc: "Advantage on Initiative rolls",
+      l10n: { name: "先攻優勢", desc: "先攻檢定優勢" },
       ...commonBonusData,
     };
   } else if (sdb.name === "Plus1ToHit") {
@@ -222,6 +229,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         type: "modifyAmt",
         bonusAmount: 1,
         desc: "+1 to melee attacks",
+        l10n: { name: "近戰攻擊 +1", desc: "近戰攻擊檢定 +1" },
         metadata: { type: "weaponType", weaponType: "Melee" },
         ...commonBonusData,
       },
@@ -230,6 +238,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         type: "modifyAmt",
         bonusAmount: 1,
         desc: "+1 to ranged attacks",
+        l10n: { name: "遠程攻擊 +1", desc: "遠程攻擊檢定 +1" },
         metadata: { type: "weaponType", weaponType: "Ranged" },
         ...commonBonusData,
       },
@@ -239,6 +248,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       bonusTo: "spellcastRoll",
       type: "advantage",
       desc: `Advantage to cast spell: ${sdb.bonusTo}`,
+      l10n: { name: "施法優勢", desc: `施展法術 ${sdb.bonusTo} 時具有優勢` },
       metadata: {
         type: "spell",
         spell: sdb.bonusName,
@@ -251,6 +261,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
       type: "diceType",
       bonusTo: "damageRoll",
       desc: `Use a d12 for damage rolls for ${weapon}s`,
+      l10n: { name: "傷害強化", desc: `${weapon} 的傷害骰改為 d12` },
       diceType: "d12",
       metadata: {
         type: "weapon",
@@ -267,6 +278,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         bonusTo: "attackRoll",
         type: "modifyAmt",
         desc: `${weaponType}: +1 to attack rolls`,
+        l10n: { name: `${weaponType}: 攻擊 +1`, desc: `${weaponType}攻擊檢定 +1` },
         bonusAmount: 1,
         metadata: { type: "weaponType", weaponType },
         ...commonBonusData,
@@ -275,6 +287,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
         bonusTo: "damageRoll",
         type: "modifyAmt",
         desc: `${weaponType}: +1 to damage rolls`,
+        l10n: { name: `${weaponType}: 傷害 +1`, desc: `${weaponType}傷害 +1` },
         bonusAmount: 1,
         metadata: { type: "weaponType", weaponType },
         ...commonBonusData,
@@ -284,6 +297,7 @@ function mapSDBonusToBonus(sdb: SDBonus): Bonus | Bonus[] {
     return {
       type: "generic",
       desc: "Reduce the difficulty of your herbalism checks by one step",
+      l10n: { name: "草藥學", desc: "草藥學檢定難度降低一階" },
       ...commonBonusData,
     };
   }

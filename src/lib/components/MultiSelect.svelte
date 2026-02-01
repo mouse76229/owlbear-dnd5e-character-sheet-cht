@@ -3,6 +3,7 @@
   export let values = [] as string[];
   export let minSelected = 0;
   export let options = [] as readonly string[];
+  export let labels: Record<string, string> = {};
 
   function toggleOption(o: string) {
     const idx = values.findIndex((v) => v === o);
@@ -27,7 +28,7 @@
           optionSelected ? "bg-black text-white border-black" : ""
         }`}
       >
-        {o}
+        {labels[o] ?? o}
       </div>
     </button>
   {/each}

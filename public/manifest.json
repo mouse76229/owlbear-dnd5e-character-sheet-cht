@@ -1,10 +1,10 @@
 {
-  "name": "Shadow Dark Character Sheet",
+  "name": "ShadowDark 角色卡",
   "version": "1.0.0",
   "icon": "/icon.svg",
   "manifest_version": 1,
   "action": {
-    "title": "SD Character Sheet",
+    "title": "SD 角色卡",
     "icon": "/icon.svg",
     "popover": "/",
     "height": 720,

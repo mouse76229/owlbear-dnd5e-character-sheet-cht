@@ -35,7 +35,7 @@
 
   function addGear(g: GearInfo) {
     const existingGear = $pc.gear.find(
-      (existingG) => existingG.name === g.name
+      (existingG) => existingG.name === g.name,
     );
     if (existingGear) {
       existingGear.quantity++;
@@ -71,41 +71,41 @@
 <div class="border-b flex flex-col gap-1">
   <TextInput
     bind:value={gearInput}
-    placeholder="search e.g. Torch"
+    placeholder="搜尋 例如: 火把"
     class="w-full"
   />
   <div class="flex gap-1 items-center flex-wrap">
-    <div class="font-bold">Filter:</div>
+    <div class="font-bold">過濾:</div>
     <input id="showWeapon" type="checkbox" bind:checked={showWeapon} />
-    <label for="showWeapon">Weapon</label>
+    <label for="showWeapon">武器</label>
     <input id="showArmor" type="checkbox" bind:checked={showArmor} />
-    <label for="showArmor">Armor</label>
+    <label for="showArmor">防具</label>
     <input id="showBasic" type="checkbox" bind:checked={showBasic} />
-    <label for="showBasic">Basic</label>
+    <label for="showBasic">基礎</label>
     <input id="showCustom" type="checkbox" bind:checked={showCustom} />
-    <label for="showCustom">Custom</label>
+    <label for="showCustom">自訂</label>
     <input
       id="showAffordable"
       type="checkbox"
       bind:checked={showOnlyWhatICanAfford}
     />
-    <label for="showAffordable">Affordable</label>
+    <label for="showAffordable">可負擔</label>
   </div>
   <div>
     <table class="w-full">
       <thead class="text-left sticky top-0 bg-white">
         <tr>
-          <th>Name</th>
-          <th>Cost</th>
-          <th>Slots</th>
+          <th>名稱</th>
+          <th>價格</th>
+          <th>格數</th>
         </tr>
       </thead>
       <tbody>
         {#each allResults as g, i}
           <tr class="border-b" class:bg-gray-100={i % 2 == 0}>
-            <td class="pl-3">{g.name}</td>
+            <td class="pl-3">{g.l10n?.name ?? g.name}</td>
             <td>{getCostForGear(g)}</td>
-            <td>{g.slots.freeCarry ? "Free" : g.slots.slotsUsed}</td>
+            <td>{g.slots.freeCarry ? "免費" : g.slots.slotsUsed}</td>
             <td class="flex justify-end gap-1">
               {#if g.editable}
                 <button
@@ -137,7 +137,7 @@
 
 {#if showCustomGearEditModal && gear}
   <Modal bind:showModal={showCustomGearEditModal}>
-    <h2 slot="header">Custom Gear</h2>
+    <h2 slot="header">自訂裝備</h2>
     <CustomGearForm
       {gear}
       on:finish={() => {

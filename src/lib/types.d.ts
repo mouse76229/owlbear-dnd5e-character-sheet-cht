@@ -19,6 +19,12 @@ import {
   NUMERICAL_BONUS_TOS,
 } from "./constants";
 
+export type L10nInfo = {
+  name?: string;
+  desc?: string;
+  aliases?: string[];
+};
+
 export type Merge<T, R> = Omit<T, keyof R> & R;
 
 export type DiceType = (typeof DICE_TYPES)[number];
@@ -34,6 +40,7 @@ export type Roll = {
 ///// Talent
 export type GenericTalent = {
   name: string;
+  l10n?: L10nInfo;
   type: "generic";
 };
 export type BonusTalent = Merge<
@@ -76,6 +83,7 @@ export type SpellInfo = {
   };
   editable?: boolean;
   desc: string;
+  l10n?: L10nInfo;
 };
 
 ///// PlayerCharacter
@@ -161,6 +169,7 @@ export type GenericBonus = {
   type: "generic";
   metadata?: BonusMetaData;
   editable?: boolean;
+  l10n?: L10nInfo;
 };
 export type ModifyBonus = Merge<
   GenericBonus,
@@ -231,6 +240,7 @@ export type GearInfo = {
   desc?: string;
   playerBonuses?: Bonus[];
   editable?: boolean;
+  l10n?: L10nInfo;
 };
 export type Gear = {
   name: string;

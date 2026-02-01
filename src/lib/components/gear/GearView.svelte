@@ -6,7 +6,7 @@
   import { alphabetically } from "../../utils";
   import type { Gear } from "../../types";
 
-  const COIN_NAME = "Extra Coins";
+  const COIN_NAME = "額外錢幣";
   $: costlyGear = $pc.gear
     .filter((g) => findAny(g.name)?.slots.freeCarry === 0)
     .sort((a, b) => alphabetically(a.name, b.name));
@@ -69,13 +69,13 @@
 </script>
 
 <div class="flex gap-1 p-1">
-  <h2>GEAR</h2>
-  <span>({totalSlots} slots, {freeSlots} free)</span>
+  <h2>裝備</h2>
+  <span>({totalSlots} 格, {freeSlots} 空位)</span>
   <GearButton />
   <CustomGearButton />
 </div>
 {#if freeSlots < 0}
-  <div class="text-red-600">Over Encumbered</div>
+  <div class="text-red-600">負重過重</div>
 {/if}
 
 <div class="flex gap-1">
@@ -120,7 +120,9 @@
         >
           <div class="flex justify-between">
             <span>
-              {i + 1}. {g.name} x {g.quantity} ({slotsForGear(g)} slots)
+              {i + 1}. {findAny(g.name)?.l10n?.name ?? g.name} x {g.quantity} ({slotsForGear(
+                g,
+              )} 格)
             </span>
           </div>
           {#if g.name !== COIN_NAME}
@@ -146,14 +148,16 @@
       </li>
     {/each}
   </ul>
-  <h2>Free Gear</h2>
+  <h2>免費攜帶</h2>
   <ul>
     {#each freeGear as g, i}
       <li>
         <div
           class="flex gap-1 items-center justify-between border-b border-gray-400"
         >
-          <span>{i + 1 + ". "}{g.name} x {g.quantity}</span>
+          <span
+            >{i + 1 + ". "}{findAny(g.name)?.l10n?.name ?? g.name} x {g.quantity}</span
+          >
           <div class="flex gap-1 items-center">
             {#if findAny(g.name).canBeEquipped}
               <input

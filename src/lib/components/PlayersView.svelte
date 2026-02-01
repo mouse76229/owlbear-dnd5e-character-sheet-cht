@@ -41,10 +41,9 @@
 {/if}
 
 <Modal bind:showModal>
-  <h1 slot="header">Players</h1>
+  <h1 slot="header">玩家</h1>
   <div class="w-72 mt-4 mb-4">
-    NOTE: loading another player only loads their data. It is a READ ONLY view
-    of the players sheet.
+    注意：載入其他玩家僅載入其數據。這是玩家角色卡的唯讀預覽。
   </div>
   <div class="flex flex-col gap-1 w-full">
     {#each allPlayers as p}
@@ -52,14 +51,14 @@
         class="flex gap-1 justify-between items-center p-1 rounded-md w-full"
         class:bg-yellow-300={$TrackedPlayer === p.id}
       >
-        <div>{p.name}{p.id == $GmId ? " (you)" : ""}</div>
+        <div>{p.name}{p.id == $GmId ? "（你）" : ""}</div>
         {#if $TrackedPlayer !== p.id}
           <button
             class="bg-black text-white p-1 rounded-md px-1"
-            on:click={() => onLoadPlayer(p)}>Load</button
+            on:click={() => onLoadPlayer(p)}>載入</button
           >
         {:else if !$isTrackedPlayerGM}
-          <div>In Sync</div>
+          <div>同步中</div>
         {/if}
       </div>
     {/each}

@@ -8,11 +8,11 @@
   class="bg-black text-white px-3 rounded-md"
   on:click={() => {
     showShop = true;
-  }}>Gear</button
+  }}>裝備</button
 >
 
 <!-- Always Keep this rendered because we want to preserve the state of the shop's filters etc... -->
 <Modal bind:showModal={showShop} vh={90}>
-  <h1 slot="header" class="min-w-[300px]">Gear</h1>
+  <h1 slot="header" class="min-w-[300px]">裝備</h1>
   <GearShopView />
 </Modal>

@@ -6,7 +6,7 @@
   import Modal from "./Modal.svelte";
 
   let showModal = false;
-  const fmt = new Intl.DateTimeFormat("en-US", { timeStyle: "medium" });
+  const fmt = new Intl.DateTimeFormat("zh-TW", { timeStyle: "medium" });
 </script>
 
 <button class="bg-black text-white px-1" on:click={() => (showModal = true)}
@@ -14,7 +14,7 @@
 >
 
 <Modal bind:showModal>
-  <h1 slot="header">Notifications</h1>
+  <h1 slot="header">通知</h1>
   <div class="w-[300px] h-[500px] md:w-[700px] md:h-[550px] resize-none">
     <div class="flex flex-col gap-1">
       {#each $Notifications as n}
@@ -28,7 +28,7 @@
       {#if $Notifications.length}
         <button class="p-2 bg-white" on:click={clearNotifications}>
           <i class="material-icons translate-y-1">delete</i>
-          Clear Notifications
+          清除通知
         </button>
       {/if}
     </div>

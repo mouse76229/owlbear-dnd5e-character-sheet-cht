@@ -6,6 +6,7 @@
   import type { Stat } from "../types";
   import { clamp, addSign } from "../utils";
   import Modal from "./Modal.svelte";
+  import { t_Stat } from "../translations";
 
   export let forStat: Stat;
   $: bonuses = [];
@@ -49,11 +50,11 @@
 
 <Modal bind:showModal={showMenu}>
   <h1 slot="header">
-    {forStat}: {addSign(modifier)}
+    {t_Stat(forStat)}: {addSign(modifier)}
   </h1>
   <ol>
     <li>
-      Base Modifier: {addSign(baseMod)}
+      基礎調整值: {addSign(baseMod)}
       {#each bonuses as b}
         <li>{b}</li>
       {/each}

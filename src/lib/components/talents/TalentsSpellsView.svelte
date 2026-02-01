@@ -4,7 +4,7 @@
   import SpellsView from "../spells/SpellsView.svelte";
 </script>
 
-<h2>SPELLS / BONUSES / LANGUAGES</h2>
+<h2>法術 / 加值 / 語言</h2>
 
 <div class="overflow-y-auto">
   <SpellsView />

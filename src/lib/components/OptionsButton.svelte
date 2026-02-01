@@ -24,10 +24,10 @@
 </button>
 
 <Modal bind:showModal>
-  <h1 slot="header">Options</h1>
+  <h1 slot="header">選項</h1>
   <div class="flex flex-col gap-1 min-w-[200px]" id="options">
     <div>
-      <h2>Choose Save Slot</h2>
+      <h2>選擇存檔欄位</h2>
       <div class="flex gap-1 w-full justify-stretch">
         {#each { length: NUM_SLOTS } as _, i}
           <button
@@ -42,7 +42,7 @@
     {#if OBR.isAvailable}
       <label for="notificationDuration">
         <div class="flex flex-row gap-1 items-center">
-          <div>Notification Duration:</div>
+          <div>通知持續時間:</div>
           <input
             class="w-16 text-right"
             id="notificationDuration"
@@ -51,12 +51,12 @@
             bind:value={$Settings.popoverDuration}
             min="0"
           />
-          <div>seconds</div>
+          <div>秒</div>
         </div>
       </label>
     {/if}
-    <label for="jsonImport" class={isSheetReadOnly ? 'btn-disabled' : 'btn'}>
-      <div class="text-center">Import JSON</div>
+    <label for="jsonImport" class={isSheetReadOnly ? "btn-disabled" : "btn"}>
+      <div class="text-center">匯入 JSON</div>
       <input
         id="jsonImport"
         type="file"
@@ -73,25 +73,25 @@
     <button
       on:click={() => {
         savePlayerToFile($pc);
-      }}>Export JSON</button
+      }}>匯出 JSON</button
     >
     <a
       class="btn"
       href="https://github.com/maxpaulus43/owlbear-shadowdark-character-sheet/issues/new"
-      target="_blank">Report Issue</a
+      target="_blank">回報問題</a
     >
     {#if !isSheetReadOnly}
-      <div>Advanced Options (Proceed with caution)</div>
+      <div>進階選項（請謹慎操作）</div>
       <button
         on:click={() => {
           $pc = defaultPC();
-        }}>Clear Current Save Slot</button
+        }}>清除目前欄位資料</button
       >
       <button
         on:click={() => {
           $pc = defaultPC();
           clearLocalStorage();
-        }}>Clear Storage (Proceed with caution)</button
+        }}>清除所有暫存資料（請謹慎操作）</button
       >
     {/if}
   </div>
@@ -104,7 +104,7 @@
   }
 
   .btn-disabled {
-    @apply  bg-black text-white px-1 rounded-md text-center opacity-30 cursor-default hover:scale-100;
+    @apply bg-black text-white px-1 rounded-md text-center opacity-30 cursor-default hover:scale-100;
   }
 
   .green {

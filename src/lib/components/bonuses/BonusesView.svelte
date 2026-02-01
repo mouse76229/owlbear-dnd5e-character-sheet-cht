@@ -18,7 +18,7 @@
     .filter((g) => g && g.playerBonuses?.length > 0 && !g.canBeEquipped);
 </script>
 
-<h2>Bonuses</h2>
+<h2>加值</h2>
 <ul class="px-1">
   {#each $pc.bonuses.sort((a, b) => alphabetically(a.desc, b.desc)) as b}
     <li class="border-b">
@@ -27,11 +27,11 @@
   {/each}
 </ul>
 
-<h2>Bonuses From Items</h2>
+<h2>裝備加值</h2>
 <ul>
-  {#each otherGearWithBonuses.sort( (a, b) => alphabetically(a.name, b.name) ) as g}
+  {#each otherGearWithBonuses.sort( (a, b) => alphabetically(a.name, b.name), ) as g}
     <li class="border-b">
-      <div class="font-bold bg-gray-300">{g.name}</div>
+      <div class="font-bold bg-gray-300">{g.l10n?.name ?? g.name}</div>
       <ul>
         {#each g.playerBonuses as b}
           <li class="border-b ps-8 flex gap-1">* <BonusView bonus={b} /></li>
@@ -39,9 +39,9 @@
       </ul>
     </li>
   {/each}
-  {#each equippableGearWithBonuses.sort( (a, b) => alphabetically(a.name, b.name) ) as g}
+  {#each equippableGearWithBonuses.sort( (a, b) => alphabetically(a.name, b.name), ) as g}
     <li class="border-b">
-      <div class="font-bold bg-gray-300">{g.name}</div>
+      <div class="font-bold bg-gray-300">{g.l10n?.name ?? g.name}</div>
       <ul>
         {#each g.playerBonuses as b}
           <li class="border-b ps-8 flex gap-1">

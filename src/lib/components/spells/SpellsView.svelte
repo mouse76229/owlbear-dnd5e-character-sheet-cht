@@ -31,7 +31,7 @@
   }
 </script>
 
-<h2>Spells</h2>
+<h2>法術</h2>
 {#if hasSpells}
   <ul class="flex flex-col gap-1">
     {#each spells as spell}
@@ -39,12 +39,12 @@
       <li>
         <div class="flex justify-between border-b border-gray-400 items-center">
           <div class="flex gap-1">
-            <div>{spell.name}</div>
+            <div>{spell.l10n?.name ?? spell.name}</div>
             <SpellInfoButton {spell} />
           </div>
           <div class="flex items-center gap-2">
             <input
-              title="spellcasting failed"
+              title="施法失敗"
               type="checkbox"
               class="w-6 h-6"
               checked={hasFailedSpellcast(spell)}

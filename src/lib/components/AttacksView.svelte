@@ -20,22 +20,32 @@
     .filter((g) => g.canBeEquipped && g.properties?.includes("Attackable"));
 </script>
 
-<h2>ATTACKS</h2>
+<h2>攻擊</h2>
 <div class="overflow-y-auto">
   <table class="table-auto text-left text-sm w-full">
     <tr class="border-b">
-      <th>Attack</th>
-      <th>Range</th>
-      <th>Hit/DC</th>
-      <th>Damage</th>
+      <th>攻擊</th>
+      <th>距離</th>
+      <th>命中/DC</th>
+      <th>傷害</th>
     </tr>
 
     {#each weapons as w}
       {@const dmg = calculateDamageBonusForPlayerWeapon($pc, w)}
       {@const damageBonus = dmg !== 0 ? addSign(dmg) : ""}
+      {@const rangeMap = {
+        Close: "貼身",
+        Near: "近距",
+        Far: "遠距",
+        Self: "自身",
+      }}
       <tr class="border-b">
-        <td>{w.name}</td>
-        <td>{w.range}</td>
+        <td>{w.l10n?.name ?? w.name}</td>
+        <td
+          >{Array.isArray(w.range)
+            ? w.range.map((r) => rangeMap[r] ?? r).join("/")
+            : (rangeMap[w.range] ?? w.range)}</td
+        >
         <td>
           <RollButton modifier={calculateAttackBonusForPlayerWeapon($pc, w)} />
         </td>
@@ -44,7 +54,7 @@
             {@const diceType = calculateDamageDiceTypeForPlayerWeapon(
               $pc,
               w,
-              "oneHanded"
+              "oneHanded",
             )}
             <RollButton
               {diceType}
@@ -65,7 +75,7 @@
             {@const diceType = calculateDamageDiceTypeForPlayerWeapon(
               $pc,
               w,
-              "twoHanded"
+              "twoHanded",
             )}
             <RollButton
               {diceType}
@@ -87,7 +97,7 @@
     {/each}
 
     {#each customAttacks as a}
-      <div class="py-1">{a.name}</div>
+      <div class="py-1">{a.l10n?.name ?? a.name}</div>
     {/each}
   </table>
 </div>

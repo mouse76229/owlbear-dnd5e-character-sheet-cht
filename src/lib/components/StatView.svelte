@@ -8,6 +8,8 @@
   } from "../model/PlayerCharacter";
   import type { Stat } from "../types";
 
+  import { t_Stat } from "../translations";
+
   export let forStat: Stat;
   const pc = PlayerCharacterStore;
   $: modifier = calculateModifierForPlayerStat($pc, forStat);
@@ -21,7 +23,7 @@
 
 <div class="flex flex-col">
   <label>
-    <h2>{forStat}</h2>
+    <h2>{t_Stat(forStat)}</h2>
     <div class="sheet-stat flex gap-1">
       <input
         id={`${forStat}-input}`}

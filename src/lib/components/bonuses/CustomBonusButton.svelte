@@ -10,12 +10,12 @@
   on:click={() => {
     showForm = true;
     showModal = true;
-  }}>Custom Bonus</button
+  }}>自訂加值</button
 >
 
 {#if showForm}
   <Modal bind:showModal>
-    <h1 slot="header">Custom Bonus</h1>
+    <h1 slot="header">自訂加值</h1>
     <CustomBonusForm
       on:finish={() => {
         showForm = false;

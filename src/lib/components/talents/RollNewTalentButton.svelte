@@ -94,9 +94,9 @@
 
   function stringForOption(o: Bonus | Bonus[]): string {
     if (Array.isArray(o)) {
-      return o.map((o) => o.name).join(" & ");
+      return o.map((o) => o.l10n?.name ?? o.name).join(" & ");
     } else {
-      return o.name;
+      return o.l10n?.name ?? o.name;
     }
   }
 
@@ -172,36 +172,37 @@
 
 <button
   class="bg-black text-white w-full p-2"
-  on:click={() => (showModal = true)}>Roll New Talent</button
+  on:click={() => (showModal = true)}>擲新天賦</button
 >
 
 <Modal bind:showModal>
-  <h2 slot="header" class="text-lg">Roll New Talent</h2>
+  <h2 slot="header" class="text-lg">擲新天賦</h2>
   <table>
     <tr class="text-left border-b border-black">
       <th class="w-20">2d6</th>
-      <th>Effect</th>
+      <th>效果</th>
     </tr>
     {#each ranges as r, i}
+      {@const talent = CLASS_TALENTS[$pc.class][i]}
       <tr class="border-b border-black" class:bg-yellow-300={highlight === i}>
         <td>{r.min === r.max ? r.min : `${r.min}-${r.max}`}</td>
-        <td>{CLASS_TALENTS[$pc.class][i]?.name}</td>
+        <td>{talent?.l10n?.name ?? talent?.name}</td>
       </tr>
     {/each}
     <tr class="border-b border-black" class:bg-yellow-300={highlight === 4}>
       <td>12</td>
-      <td>Choose a talent or +2 points to distribute to stats</td>
+      <td>選擇一項天賦或 +2 點數分配至屬性</td>
     </tr>
   </table>
   {#if canRoll}
     <button class="w-full bg-black text-white p-1" on:click={rollTalent}>
-      ROLL
+      擲骰
     </button>
   {/if}
   <div class="flex flex-col gap-1">
     {#if highlight === 4}
       <div class="flex gap-5 items-center justify-center p-2">
-        <label for="chooseTalentCheckBox">Choose Talent</label>
+        <label for="chooseTalentCheckBox">選擇天賦</label>
         <input
           id="chooseTalentCheckBox"
           type="radio"
@@ -209,7 +210,7 @@
           bind:group={talentChoiceOrStatsChoice}
           value="talent"
         />
-        <label for="distributeStatsCheckBox">Distribute Stats</label>
+        <label for="distributeStatsCheckBox">分配屬性</label>
         <input
           id="distributeStatsCheckBox"
           type="radio"
@@ -221,14 +222,14 @@
     {/if}
     {#if talentChoiceOrStatsChoice === "talent"}
       <select on:change={onTalentSelectChange} value={highlight} class="w-full">
-        {#each CLASS_TALENTS[$pc.class].map((t) => t.name) as t, i}
-          <option value={i}>{t}</option>
+        {#each CLASS_TALENTS[$pc.class] as t, i}
+          <option value={i}>{t.l10n?.name ?? t.name}</option>
         {/each}
       </select>
     {/if}
     {#if talentChoiceOrStatsChoice === "stats"}
       <div class="self-center">
-        Stats Points remaining: {statDistributionRemaining}
+        剩餘屬性點數: {statDistributionRemaining}
       </div>
       <div class="flex flex-col gap-1 items-center">
         {#each STATS as s}
@@ -259,7 +260,7 @@
     {/if}
     {#if showDone}
       <button class="w-full bg-black text-white p-1" on:click={updateSheet}>
-        Update Sheet
+        更新角色卡
       </button>
     {/if}
   </div>

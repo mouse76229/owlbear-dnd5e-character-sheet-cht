@@ -55,15 +55,15 @@
   <div class="sticky top-0 flex flex-col bg-white p-3">
     <TextInput
       bind:value={spellInput}
-      placeholder="search e.g. Burning Hands"
+      placeholder="搜尋 例如: 燃燒之手"
       class="w-full"
     />
     <button class="blk-btn" on:click={() => (showFilters = !showFilters)}
-      >{showFilters ? "Hide" : "Show"} Filters</button
+      >{showFilters ? "隱藏" : "顯示"} 過濾器</button
     >
     {#if showFilters}
       <div class="flex gap-1 items-center">
-        <div class="font-bold">Tier:</div>
+        <div class="font-bold">環階:</div>
         <input id="showTier1" type="checkbox" bind:checked={showTier1} />
         <label for="showTier1">1</label>
         <input id="showTier2" type="checkbox" bind:checked={showTier2} />
@@ -76,27 +76,27 @@
         <label for="showTier5">5</label>
       </div>
       <div class="flex gap-1 items-center">
-        <div class="font-bold">Class:</div>
+        <div class="font-bold">職業:</div>
         <input id="showPriest" type="checkbox" bind:checked={showPriest} />
-        <label for="showPriest">Priest</label>
+        <label for="showPriest">牧師</label>
         <input id="showWizard" type="checkbox" bind:checked={showWizard} />
-        <label for="showWizard">Wizard</label>
+        <label for="showWizard">法師</label>
         <input id="showOther" type="checkbox" bind:checked={showOther} />
-        <label for="showWizard">Other</label>
+        <label for="showWizard">其他</label>
       </div>
       <div class="flex gap-1 items-center">
-        <div class="font-bold">Range:</div>
+        <div class="font-bold">距離:</div>
         <input id="showSelf" type="checkbox" bind:checked={showSelf} />
-        <label for="showSelf">Self</label>
+        <label for="showSelf">自身</label>
         <input id="showClose" type="checkbox" bind:checked={showClose} />
-        <label for="showClose">Close</label>
+        <label for="showClose">貼身</label>
         <input id="showNear" type="checkbox" bind:checked={showNear} />
-        <label for="showNear">Near</label>
+        <label for="showNear">近距</label>
         <input id="showFar" type="checkbox" bind:checked={showFar} />
-        <label for="showFar">Far</label>
+        <label for="showFar">遠距</label>
       </div>
       <div class="flex gap-1 items-center">
-        <label for="showCustom" class="font-bold">Custom</label>
+        <label for="showCustom" class="font-bold">自訂</label>
         <input id="showCustom" type="checkbox" bind:checked={showCustom} />
       </div>
     {/if}

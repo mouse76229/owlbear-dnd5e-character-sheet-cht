@@ -30,7 +30,7 @@
   function roll() {
     const outcome = rollDice(diceType, numDice);
     let critMsg = "";
-    const msg = `rolled ${numDice}${diceType}: ${critMsg}${outcome} + ${modifier} = ${
+    const msg = `擲出 ${numDice}${diceType}: ${critMsg}${outcome} + ${modifier} = ${
       outcome + modifier
     }`;
     notifiy(msg);
@@ -41,7 +41,7 @@
     const outcome2 = rollDice(diceType, numDice);
     const higher = Math.max(outcome1, outcome2);
     let critMsg = "";
-    const msg = `rolled ${numDice}${diceType}: ${critMsg}${outcome1} vs. ${outcome2};\n ${higher} + ${modifier} = ${
+    const msg = `擲出 ${numDice}${diceType}: ${critMsg}${outcome1} 與 ${outcome2};\n ${higher} + ${modifier} = ${
       higher + modifier
     }`;
     notifiy(msg);
@@ -52,7 +52,7 @@
     const outcome2 = rollDice(diceType, numDice);
     const lower = Math.min(outcome1, outcome2);
     let critMsg = "";
-    const msg = `rolled ${numDice}${diceType}: ${critMsg}${outcome1} vs. ${outcome2};\n ${lower} + ${modifier} = ${
+    const msg = `擲出 ${numDice}${diceType}: ${critMsg}${outcome1} 與 ${outcome2};\n ${lower} + ${modifier} = ${
       lower + modifier
     }`;
     notifiy(msg);
@@ -61,7 +61,7 @@
   function rollSecretly() {
     const outcome = rollDice(diceType, numDice);
     let critMsg = "";
-    const msg = `rolled ${numDice}${diceType}: ${critMsg}${outcome} + ${modifier} = ${
+    const msg = `擲出 ${numDice}${diceType}: ${critMsg}${outcome} + ${modifier} = ${
       outcome + modifier
     }`;
     notifiy(msg, { secret: true });
@@ -105,15 +105,15 @@
 
   {#if showMenu}
     <Menu {...pos} on:click={closeMenu} on:clickoutside={closeMenu}>
-      <MenuOption on:click={roll} text="Roll" />
+      <MenuOption on:click={roll} text="擲骰" />
       <MenuOption on:click={rollSecretly}>
-        <div class="text-black">Roll Secretly</div>
+        <div class="text-black">秘密擲骰</div>
       </MenuOption>
       <MenuOption on:click={rollWithAdvantage}>
-        <div class="text-green-700">Roll With Advantage</div>
+        <div class="text-green-700">優勢擲骰</div>
       </MenuOption>
       <MenuOption on:click={rollWithDisadvantage}>
-        <div class="text-red-700">Roll With Disadvantage</div>
+        <div class="text-red-700">劣勢擲骰</div>
       </MenuOption>
     </Menu>
   {/if}

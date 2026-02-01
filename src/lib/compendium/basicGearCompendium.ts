@@ -7,6 +7,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "長竿" },
   },
   {
     name: "Rope, 60'",
@@ -14,6 +15,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "繩索 (60呎)" },
   },
   {
     name: "Oil, Flask",
@@ -21,6 +23,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "油 (瓶)" },
   },
   {
     name: "Light Spell (Double Range)",
@@ -28,6 +31,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "光亮術 (雙倍範圍)" },
   },
   {
     name: "Iron Spikes",
@@ -35,6 +39,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 10, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "鐵釘" },
   },
   {
     name: "Flint and Steel",
@@ -42,6 +47,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "打火石與火鐮" },
   },
   {
     name: "Mirror",
@@ -49,6 +55,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "鏡子" },
   },
   {
     name: "Rations",
@@ -56,6 +63,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 3, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "口糧" },
   },
   {
     name: "Crowbar",
@@ -63,6 +71,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "撬棍" },
   },
   {
     name: "Light Spell",
@@ -70,6 +79,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "光亮術" },
   },
   {
     name: "Caltrops",
@@ -77,6 +87,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "鐵蒺藜" },
   },
   {
     name: "Flask",
@@ -84,6 +95,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "扁瓶" },
   },
   {
     name: "Arrows",
@@ -91,6 +103,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 20, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "箭矢" },
   },
   {
     name: "Bottle",
@@ -98,6 +111,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "瓶子" },
   },
   {
     name: "Grappling Hook",
@@ -105,6 +119,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "爪鉤" },
   },
   {
     name: "Crossbow Bolts",
@@ -112,6 +127,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 20, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "十字弓矢" },
   },
   {
     name: "Lantern",
@@ -119,6 +135,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "提燈" },
   },
   {
     name: "Thieves' Tools",
@@ -126,6 +143,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "盜賊工具" },
   },
   {
     name: "Backpack",
@@ -133,6 +151,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "背包" },
   },
   {
     name: "Light Spell (Double Time)",
@@ -140,6 +159,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "光亮術 (雙倍時間)" },
   },
   {
     name: "Holy Symbol",
@@ -147,6 +167,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 1 },
+    l10n: { name: "聖徽" },
   },
   {
     name: "Torch",
@@ -154,6 +175,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 1, freeCarry: 0 },
+    l10n: { name: "火把" },
   },
   {
     name: "Thieving Tools",
@@ -161,6 +183,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 0, freeCarry: 1 },
+    l10n: { name: "盜賊工具" },
   },
   {
     name: "Holy Symbol",
@@ -168,6 +191,7 @@ const GEAR: GearInfo[] = [
     canBeEquipped: false,
     type: "Basic",
     slots: { perSlot: 1, slotsUsed: 0, freeCarry: 1 },
+    l10n: { name: "聖徽" },
   },
 ];
 

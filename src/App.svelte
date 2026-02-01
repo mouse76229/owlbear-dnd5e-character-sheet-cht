@@ -26,6 +26,7 @@
   import { isSaveInProgress } from "./lib/services/LocalStorageSaver";
   import NotificationsButton from "./lib/components/NotificationsButton.svelte";
   import { initSettings } from "./lib/services/SettingsTracker";
+  import { t_Alignment, t_Title } from "./lib/translations";
 
   const { isGM } = OBRHelper;
 
@@ -148,7 +149,7 @@
       >
         <div class="col-span-full cell">
           <label>
-            <h2>NAME</h2>
+            <h2>姓名</h2>
             <input type="text" bind:value={$pc.name} />
           </label>
         </div>
@@ -160,7 +161,7 @@
         </div>
         <div class="cell">
           <label>
-            <h2>LEVEL</h2>
+            <h2>等級</h2>
             <input
               type="number"
               inputmode="numeric"
@@ -171,7 +172,7 @@
           </label>
         </div>
         <div class="cell">
-          <h2>XP</h2>
+          <h2>經驗值</h2>
           <label for="xp" />
           <div class="sheet-stat flex gap-1">
             {#if $pc.level < 10}
@@ -185,7 +186,7 @@
               /
               <div>{xpCap}</div>
             {:else}
-              MAX LEVEL
+              最高等級
             {/if}
             <button
               class="text-2xl"
@@ -199,7 +200,7 @@
           </div>
         </div>
         <div class="col-span-full cell">
-          <h2>TITLE</h2>
+          <h2>稱號</h2>
           {#if $pc.hasCustomClass}
             <input
               type="text"
@@ -207,26 +208,26 @@
               on:input={onTitleInput}
             />
           {:else}
-            <div>{title}</div>
+            <div>{t_Title(title ?? $pc.title, $pc.class, $pc.alignment)}</div>
           {/if}
         </div>
         <div class="col-span-full cell">
-          <h2>ALIGNMENT</h2>
+          <h2>陣營</h2>
           <select bind:value={$pc.alignment}>
             {#each ALIGNMENTS as alignment}
               <option value={alignment}>
-                {alignment}
+                {t_Alignment(alignment)}
               </option>
             {/each}
           </select>
         </div>
         <div class="col-span-full cell">
-          <h2>BACKGROUND</h2>
+          <h2>背景</h2>
           <input type="text" bind:value={$pc.background} />
         </div>
 
         <div class="col-span-full cell">
-          <h2>DEITY</h2>
+          <h2>神祇</h2>
           <input bind:value={$pc.deity} />
         </div>
       </div>

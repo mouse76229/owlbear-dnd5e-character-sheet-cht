@@ -10,7 +10,7 @@
 >
 
 <Modal bind:showModal>
-  <h1 slot="header">Notes</h1>
+  <h1 slot="header">筆記</h1>
   <textarea
     bind:value={$pc.notes}
     class="w-[300px] h-[500px] md:w-[700px] md:h-[550px] resize-none"

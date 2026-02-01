@@ -1,6 +1,7 @@
 <script lang="ts">
   import { LANGUAGES } from "../constants";
   import { PlayerCharacterStore as pc } from "../model/PlayerCharacter";
+  import { t_Language } from "../translations";
 
   let addingNewLanguage = false;
   function doesNotKnowLanguage(l: string) {
@@ -20,7 +21,7 @@
 </script>
 
 <div class="flex justify-start">
-  <h2>Languages</h2>
+  <h2>語言</h2>
   <button
     on:click={() => {
       addingNewLanguage = !addingNewLanguage;
@@ -35,7 +36,7 @@
     <select class="flex-grow" on:change={onLanguageChange}>
       <option />
       {#each LANGUAGES.filter(doesNotKnowLanguage) as l}
-        <option>{l}</option>
+        <option value={l}>{t_Language(l)}</option>
       {/each}
     </select>
   {/if}
@@ -43,7 +44,7 @@
 <ul>
   {#each $pc.languages as l}
     <li class="border-b flex justify-between gap-4">
-      <div>{l}</div>
+      <div>{t_Language(l)}</div>
       <button
         class="text-white bg-black p-1 text-xs"
         on:click={() => {

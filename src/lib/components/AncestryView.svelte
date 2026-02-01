@@ -5,6 +5,7 @@
     setAncestryForPlayer,
   } from "../model/PlayerCharacter";
   import type { Ancestry } from "../types";
+  import { t_Ancestry } from "../translations";
 
   function onToggleCustomAncestry(e: Event) {
     $pc.hasCustomAncestry = (e.target as HTMLInputElement).checked;
@@ -18,7 +19,7 @@
 </script>
 
 <div class="flex justify-between">
-  <h2>ANCESTRY</h2>
+  <h2>種族</h2>
   <div class="flex items-center gap-1">
     <input
       id="customAncestry"
@@ -26,7 +27,7 @@
       checked={$pc.hasCustomAncestry}
       on:input={onToggleCustomAncestry}
     />
-    <label for="customAncestry">Custom</label>
+    <label for="customAncestry">自訂</label>
   </div>
 </div>
 {#if $pc.hasCustomAncestry}
@@ -35,7 +36,7 @@
   <select value={$pc.ancestry} on:change={onAncestryChange}>
     {#each ANCESTRIES as ancestry}
       <option value={ancestry}>
-        {ancestry}
+        {t_Ancestry(ancestry)}
       </option>
     {/each}
   </select>

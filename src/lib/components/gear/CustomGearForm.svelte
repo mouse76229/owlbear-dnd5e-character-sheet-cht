@@ -17,6 +17,7 @@
   } from "../../types";
   import { pc } from "../../model/PlayerCharacter";
   import MultiSelect from "../MultiSelect.svelte";
+  import { t_Stat } from "../../translations";
 
   const dispatch = createEventDispatcher();
 
@@ -26,7 +27,7 @@
   function getMagicWeaponModifierFromGear(g?: GearInfo): number {
     if (!g) return 0;
     let b = (g as WeaponInfo)?.playerBonuses?.find(
-      (b) => b.type === "modifyAmt" && b.bonusTo === "attackRoll"
+      (b) => b.type === "modifyAmt" && b.bonusTo === "attackRoll",
     ) as ModifyBonus | undefined;
     return b?.bonusAmount ?? 0;
   }
@@ -81,7 +82,7 @@
   };
 
   let vm = JSON.parse(
-    JSON.stringify(defaultViewModel)
+    JSON.stringify(defaultViewModel),
   ) as typeof defaultViewModel;
 
   $: weaponHasAtLeastDamage =
@@ -229,12 +230,33 @@
     $pc = $pc;
     dispatch("finish");
   }
+
+  const weaponPropMap: Record<string, string> = {
+    Finesse: "靈巧",
+    Thrown: "投擲",
+    TwoHanded: "雙手",
+    Versatile: "通用",
+    Magic: "魔法",
+    Loading: "裝填", // Assuming Loading exists or will exist
+  };
+  const rangeMap: Record<string, string> = {
+    Close: "貼身",
+    Near: "近距",
+    Far: "遠距",
+    Self: "自身",
+  };
+  const armorPropMap: Record<string, string> = {
+    Shield: "盾牌",
+    OneHanded: "單手",
+    TwoHanded: "雙手",
+    Disadvantage: "劣勢", // Check armor properties
+  };
 </script>
 
 <div class="flex flex-col gap-1">
-  <label for="name">Name<span class="text-red-700">*</span></label>
+  <label for="name">名稱<span class="text-red-700">*</span></label>
   <input id="name" type="text" bind:value={vm.name} />
-  <label for="slots">Slots</label>
+  <label for="slots">格數</label>
   <input
     id="slots"
     type="number"
@@ -242,7 +264,7 @@
     min="0"
     bind:value={vm.slots}
   />
-  <label for="perSlot">How Many of this item take up one slot?</label>
+  <label for="perSlot">每格數量</label>
   <input
     id="perSlot"
     type="number"
@@ -250,7 +272,7 @@
     min="1"
     bind:value={vm.quantityPerSlot}
   />
-  <label for="cost">Cost</label>
+  <label for="cost">價格</label>
   <input
     id="cost"
     type="number"
@@ -258,13 +280,13 @@
     min="0"
     bind:value={vm.cost}
   />
-  <label for="currency">Currency</label>
+  <label for="currency">貨幣</label>
   <select id="currency" bind:value={vm.currency}>
     {#each ["gp", "sp", "cp"] as currency}
       <option>{currency}</option>
     {/each}
   </select>
-  <label for="quantity">Quantity<span class="text-red-700">*</span></label>
+  <label for="quantity">數量<span class="text-red-700">*</span></label>
   <input
     id="quantity"
     type="number"
@@ -274,15 +296,15 @@
   />
   <div class="flex gap-1 items-center">
     <input id="showAdvanced" type="checkbox" bind:checked={vm.showAdvanced} />
-    <label for="showAdvanced">Advanced Options</label>
+    <label for="showAdvanced">進階選項</label>
   </div>
 
   {#if vm.showAdvanced}
-    <label for="gearType">Gear Type</label>
+    <label for="gearType">裝備類型</label>
     <select name="gearType" bind:value={vm.gearType}>
-      <option>Basic</option>
-      <option>Weapon</option>
-      <option>Armor</option>
+      <option value="Basic">基礎</option>
+      <option value="Weapon">武器</option>
+      <option value="Armor">防具</option>
     </select>
 
     {#if vm.gearType === "Basic"}
@@ -292,37 +314,35 @@
           type="checkbox"
           bind:checked={vm.canBeEquipped}
         />
-        <label for="canBeEquipped">Can this item be equipped?</label>
+        <label for="canBeEquipped">可裝備？</label>
       </div>
       {#if vm.canBeEquipped}
         <div class="flex gap-1 items-center">
           <input id="attackable" type="checkbox" bind:checked={vm.attackable} />
           <label for="attackable">
-            Should this item appear in <span class="pirata text-lg"
-              >ATTACKS</span
-            >
-            when equipped?
+            裝備時顯示於 <span class="pirata text-lg">攻擊</span> 列表？
           </label>
         </div>
       {/if}
     {:else if vm.gearType === "Weapon"}
-      <label for="">Weapon Type</label>
+      <label for="">武器類型</label>
       <select name="" id="" bind:value={vm.weaponType}>
-        <option>Melee</option>
-        <option>Ranged</option>
-        <option value="MeleeRanged">Melee or Ranged</option>
+        <option value="Melee">近戰</option>
+        <option value="Ranged">遠程</option>
+        <option value="MeleeRanged">近戰或遠程</option>
       </select>
 
-      <label for="weaponProperties">Weapon Properties</label>
+      <label for="weaponProperties">武器特性</label>
       <MultiSelect
         id="weaponProperties"
         bind:values={vm.weaponProperties}
         options={WEAPON_PROPERTIES}
+        labels={weaponPropMap}
       />
 
       {#if vm.weaponProperties.includes("Magic")}
         <div class="flex flex-row gap-1 items-center">
-          <label for="magicWeaponModifier">Magic weapon modifier: +</label>
+          <label for="magicWeaponModifier">魔法武器修正: +</label>
           <input
             id="magicWeaponModifier"
             type="number"
@@ -334,15 +354,16 @@
         </div>
       {/if}
 
-      <label for="range">Range</label>
+      <label for="range">距離</label>
       <MultiSelect
         id="ranges"
         bind:values={vm.weaponRanges}
         minSelected={1}
         options={RANGE_TYPES}
+        labels={rangeMap}
       />
 
-      <label for="damage">Damage<span class="text-red-700">*</span></label>
+      <label for="damage">傷害<span class="text-red-700">*</span></label>
 
       <div class="flex gap-1 items-center">
         <input type="checkbox" bind:checked={vm.hasOneHandedAttack} />
@@ -350,7 +371,7 @@
           class="flex gap-1 items-center"
           class:opacity-25={!vm.hasOneHandedAttack}
         >
-          <div>One Handed:</div>
+          <div>單手:</div>
           <input
             disabled={!vm.hasOneHandedAttack}
             type="number"
@@ -377,7 +398,7 @@
           class="flex gap-1 items-center"
           class:opacity-25={!vm.hasTwoHandedAttack}
         >
-          <div>Two Handed:</div>
+          <div>雙手:</div>
           <input
             disabled={!vm.hasTwoHandedAttack}
             type="number"
@@ -398,24 +419,25 @@
         </div>
       </div>
     {:else if vm.gearType === "Armor"}
-      <label for="armorProperties">Armor Properties</label>
+      <label for="armorProperties">防具特性</label>
       <MultiSelect
         id="armorProperties"
         bind:values={vm.armorProperties}
         options={SHIELD_PROPERTIES}
+        labels={armorPropMap}
       />
 
-      <label for="baseAC">Base AC</label>
+      <label for="baseAC">基礎 AC</label>
       <input type="number" inputmode="numeric" bind:value={vm.baseAC} />
 
-      <label for="acModifier">AC Modifier</label>
+      <label for="acModifier">AC 修正</label>
       <input type="number" inputmode="numeric" bind:value={vm.acModifier} />
 
-      <label for="armorStat">Should this armor scale with a stat?</label>
+      <label for="armorStat">此防具是否隨屬性調整？</label>
       <select name="" id="" bind:value={vm.armorStat}>
-        <option value={undefined}>No</option>
+        <option value={undefined}>否</option>
         {#each STATS as s}
-          <option>{s}</option>
+          <option value={s}>{t_Stat(s)}</option>
         {/each}
       </select>
     {/if}
@@ -428,9 +450,9 @@
     disabled={!canAdd}
   >
     {#if gear}
-      UPDATE
+      更新
     {:else}
-      ADD
+      新增
     {/if}
   </button>
 </div>

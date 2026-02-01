@@ -14,6 +14,7 @@ export const WEAPONS: WeaponInfo[] = [
       oneHanded: { diceType: "d8", numDice: 1 },
       twoHanded: { diceType: "d10", numDice: 1 },
     },
+    l10n: { name: "變種劍" },
   },
   {
     name: "Greataxe",
@@ -28,6 +29,7 @@ export const WEAPONS: WeaponInfo[] = [
       oneHanded: { diceType: "d8", numDice: 1 },
       twoHanded: { diceType: "d10", numDice: 1 },
     },
+    l10n: { name: "巨斧" },
   },
   {
     name: "Staff",
@@ -41,6 +43,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d4", numDice: 1 },
     },
+    l10n: { name: "長棍" },
   },
   {
     name: "Javelin",
@@ -54,6 +57,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d4", numDice: 1 },
     },
+    l10n: { name: "標槍" },
   },
   {
     name: "Dagger",
@@ -67,6 +71,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d4", numDice: 1 },
     },
+    l10n: { name: "匕首" },
   },
   {
     name: "Longbow",
@@ -79,6 +84,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d8", numDice: 1 },
     },
+    l10n: { name: "長弓" },
   },
   {
     name: "Shortbow",
@@ -91,6 +97,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d4", numDice: 1 },
     },
+    l10n: { name: "短弓" },
   },
   {
     name: "Club",
@@ -103,6 +110,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d4", numDice: 1 },
     },
+    l10n: { name: "棍棒" },
   },
   {
     name: "Greatsword",
@@ -115,6 +123,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d12", numDice: 1 },
     },
+    l10n: { name: "巨劍" },
   },
   {
     name: "Longsword",
@@ -127,6 +136,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d8", numDice: 1 },
     },
+    l10n: { name: "長劍" },
   },
   {
     name: "Shortsword",
@@ -139,6 +149,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d6", numDice: 1 },
     },
+    l10n: { name: "短劍" },
   },
   {
     name: "Spear",
@@ -152,6 +163,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d6", numDice: 1 },
     },
+    l10n: { name: "矛" },
   },
   {
     name: "Crossbow",
@@ -165,6 +177,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d6", numDice: 1 },
     },
+    l10n: { name: "十字弓" },
   },
   {
     name: "Mace",
@@ -177,6 +190,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       oneHanded: { diceType: "d6", numDice: 1 },
     },
+    l10n: { name: "釘頭錘" },
   },
   {
     name: "Warhammer",
@@ -189,6 +203,7 @@ export const WEAPONS: WeaponInfo[] = [
     damage: {
       twoHanded: { diceType: "d10", numDice: 1 },
     },
+    l10n: { name: "戰錘" },
   },
 ];
 

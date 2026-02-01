@@ -103,6 +103,7 @@ function addAncestryBonuses(bonuses: Bonus[], a: Ancestry | "") {
           name,
           bonusSource: "Ancestry",
           desc: "Roll your hit point gains with advantage",
+          l10n: { name: "堅韌", desc: "擲生命值時有優勢" },
           type: "advantage",
           bonusTo: "hpRoll",
         });
@@ -116,6 +117,7 @@ function addAncestryBonuses(bonuses: Bonus[], a: Ancestry | "") {
           name,
           bonusSource: "Ancestry",
           desc: "You can't be surprised",
+          l10n: { name: "敏銳感官", desc: "你不會受驚" },
           type: "generic",
         });
       }
@@ -128,6 +130,7 @@ function addAncestryBonuses(bonuses: Bonus[], a: Ancestry | "") {
           name,
           bonusSource: "Ancestry",
           desc: "Once per day, you can become invisible for 3 rounds",
+          l10n: { name: "隱匿", desc: "每天一次，你可以隱形 3 輪" },
           type: "generic",
         });
       }
@@ -141,6 +144,7 @@ function addAncestryBonuses(bonuses: Bonus[], a: Ancestry | "") {
           {
             name: nameAtk,
             desc: "You have a +1 bonus to attack rolls with melee weapons",
+            l10n: { name: "強壯攻擊", desc: "近戰武器攻擊檢定 +1" },
             bonusSource: "Ancestry",
             type: "modifyAmt",
             bonusTo: "attackRoll",
@@ -153,6 +157,7 @@ function addAncestryBonuses(bonuses: Bonus[], a: Ancestry | "") {
           {
             name: nameDmg,
             desc: "You have a +1 bonus to damage rolls with melee weapons",
+            l10n: { name: "強壯傷害", desc: "近戰武器傷害 +1" },
             bonusSource: "Ancestry",
             type: "modifyAmt",
             bonusTo: "damageRoll",
@@ -182,30 +187,35 @@ function addClassBonuses(bonuses: Bonus[], c: Class) {
             name,
             bonusSource: "Class",
             desc: "Advantage on Climbing",
+            l10n: { name: "竊盜術", desc: "攀爬檢定優勢" },
             type: "generic",
           },
           {
             name: name + ": Sneaking/Hiding",
             bonusSource: "Class",
             desc: "Advantage on Sneaking/Hiding",
+            l10n: { name: "竊盜術：潛行/躲藏", desc: "潛行與躲藏檢定優勢" },
             type: "generic",
           },
           {
             name: name + ": disguises",
             bonusSource: "Class",
             desc: "Advantage on applying disguises",
+            l10n: { name: "竊盜術：易容", desc: "易容檢定優勢" },
             type: "generic",
           },
           {
             name: name + ": traps",
             bonusSource: "Class",
             desc: "Advantage on disabling traps",
+            l10n: { name: "竊盜術：陷阱", desc: "解除陷阱檢定優勢" },
             type: "generic",
           },
           {
             name: name + ": delicate",
             bonusSource: "Class",
             desc: "Advantage on picking pockets/opening locks",
+            l10n: { name: "竊盜術：精細作業", desc: "扒竊與開鎖檢定優勢" },
             type: "generic",
           }
         );
@@ -217,6 +227,7 @@ function addClassBonuses(bonuses: Bonus[], c: Class) {
           name,
           bonusSource: "Class",
           desc: "+1 additional weapon dice of damage on unaware enemies",
+          l10n: { name: "背刺", desc: "對未察覺的敵人造成額外 +1 武器傷害骰" },
           type: "modifyAmt",
           bonusTo: "backstabDice",
           bonusAmount: 1,
@@ -235,6 +246,7 @@ function addClassBonuses(bonuses: Bonus[], c: Class) {
           name,
           bonusSource: "Class",
           desc: "Study a scroll (1 Day) + DC 15 check to permanently learn scroll",
+          l10n: { name: "學習法術", desc: "研讀卷軸（1天）+ DC 15 檢定可永久學會卷軸法術" },
           type: "generic",
         });
       }
@@ -247,6 +259,7 @@ function addClassBonuses(bonuses: Bonus[], c: Class) {
           name,
           bonusSource: "Class",
           desc: "Add Your CON Modifer, if positive, to your total gear slots",
+          l10n: { name: "負重者", desc: "將你的體質調整值（若為正）加到你的總裝備格數" },
           type: "modifyAmt",
           bonusTo: "gearSlots",
           bonusAmount: 0,
@@ -266,12 +279,14 @@ function addClassBonuses(bonuses: Bonus[], c: Class) {
             name,
             bonusSource: "Class",
             desc: "Make an INT check to find some herbs",
+            l10n: { name: "草藥學", desc: "進行智力檢定以尋找草藥" },
             type: "generic",
           },
           {
             name: "Wayfinder",
             bonusSource: "Class",
             desc: "Advantage on checks associated with navigation, survivalism, tracking, sneaking, hiding, nature, animals",
+            l10n: { name: "尋路者", desc: "導航、求生、追蹤、潛行、躲藏、自然、動物相關檢定優勢" },
             type: "generic",
           }
         );

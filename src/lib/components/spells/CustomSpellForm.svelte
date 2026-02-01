@@ -4,6 +4,8 @@
   import { pc } from "../../model/PlayerCharacter";
   import { createEventDispatcher } from "svelte";
 
+  import { t_Stat } from "../../translations";
+
   const dispatch = createEventDispatcher();
 
   export let spellToEdit: SpellInfo = undefined;
@@ -23,6 +25,19 @@
   let spellRollDiceType = spellToEdit?.duration?.roll?.diceType ?? "d8";
   let spellAmt = spellToEdit?.duration?.amt ?? 1;
   let spellStat = spellToEdit?.stat ?? "INT";
+
+  const rangeMap: Record<string, string> = {
+    Self: "自身",
+    Close: "貼身",
+    Near: "近距",
+    Far: "遠距",
+  };
+  const timeUnitMap: Record<string, string> = {
+    Round: "回合",
+    Minute: "分鐘",
+    Hour: "小時",
+    Day: "天",
+  };
 
   function onCreateSpell() {
     const durType =
@@ -68,18 +83,18 @@
 </script>
 
 <div class="w-full flex flex-col gap-1 min-w-[250px]">
-  <label for="spellName">Name</label>
+  <label for="spellName">名稱</label>
   <input type="text" id="spellName" bind:value={spellName} />
 
-  <label for="spellClass">Class</label>
+  <label for="spellClass">職業</label>
   <select bind:value={spellClass}>
-    <option>Priest</option>
-    <option>Wizard</option>
-    <option value="PriestWizard">Priest or Wizard</option>
-    <option>Other</option>
+    <option value="Priest">牧師</option>
+    <option value="Wizard">法師</option>
+    <option value="PriestWizard">牧師或法師</option>
+    <option value="Other">其他</option>
   </select>
 
-  <label for="spellTier">Tier</label>
+  <label for="spellTier">環階</label>
   <select bind:value={spellTier}>
     <option>1</option>
     <option>2</option>
@@ -88,29 +103,29 @@
     <option>5</option>
   </select>
 
-  <label for="spellStat">Spell Stat</label>
+  <label for="spellStat">法術屬性</label>
   <select bind:value={spellStat}>
     {#each STATS as s}
-      <option>{s}</option>
+      <option value={s}>{t_Stat(s)}</option>
     {/each}
   </select>
 
-  <label for="spellRange">Range</label>
+  <label for="spellRange">距離</label>
   <select bind:value={spellRange}>
     {#each RANGE_TYPES as r}
-      <option>{r}</option>
+      <option value={r}>{rangeMap[r] ?? r}</option>
     {/each}
   </select>
 
-  <label for="spellDuration">Duration</label>
+  <label for="spellDuration">類型</label>
   <select bind:value={spellDurationT}>
-    <option>Focus</option>
-    <option>Instant</option>
-    <option>Time</option>
+    <option value="Focus">專注</option>
+    <option value="Instant">瞬間</option>
+    <option value="Time">持續</option>
   </select>
 
   {#if spellDurationT === "Time"}
-    <label for="">How Much Time?</label>
+    <label for="">持續多久？</label>
     <div class="flex gap-1">
       <input
         id="dice"
@@ -128,21 +143,21 @@
       </select>
       <select bind:value={spellDurationType}>
         {#each TIME_UNITS as t}
-          <option>{t}</option>
+          <option value={t}>{timeUnitMap[t] ?? t}</option>
         {/each}
       </select>
     </div>
 
     {#if spellDurationType !== "Round"}
-      <label for="durSubType">In Game Time or Real Time?</label>
+      <label for="durSubType">遊戲內時間或現實時間？</label>
       <select id="durSubType" bind:value={spellDurationSubType}>
-        <option>InGame</option>
-        <option>RealTime</option>
+        <option value="InGame">遊戲內時間</option>
+        <option value="RealTime">現實時間</option>
       </select>
     {/if}
   {/if}
 
-  <label for="spellDesc">Description</label>
+  <label for="spellDesc">描述</label>
   <textarea id="spellDesc" cols="10" bind:value={spellDesc} />
 
   <button
@@ -150,7 +165,7 @@
     disabled={!isValid}
     class:opacity-50={!isValid}
     on:click={() => onCreateSpell()}
-    >{spellToEdit ? "Update Spell" : "Create Spell"}</button
+    >{spellToEdit ? "更新法術" : "建立法術"}</button
   >
 </div>
 

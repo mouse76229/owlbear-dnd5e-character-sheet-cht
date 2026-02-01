@@ -11,53 +11,50 @@
 >
 
 <Modal bind:showModal>
-  <h1 slot="header">Info</h1>
+  <h1 slot="header">資訊</h1>
   <div class="flex flex-col">
     <div>
-      This is an unofficial fan made tool to track your shadow dark character!
+      這是一個非官方的 Shadowdark 角色追蹤工具！
       <a
         target="_blank"
         href="https://www.thearcanelibrary.com/pages/shadowdark"
-        >Buy shadow dark
+        >購買 Shadowdark
       </a>
     </div>
 
-    <h2>Import</h2>
+    <h2>匯入</h2>
     <div>
-      This tool can import your character directly from <a
-        href="https://www.shadowdarklings.net"
-        target="_blank">Shadowdarkling Character Creator</a
-      >. It can also import any previously exported json.
+      本工具可直接從 <a href="https://www.shadowdarklings.net" target="_blank"
+        >Shadowdarkling Character Creator</a
+      > 匯入您的角色。也能匯入先前匯出的 JSON 檔案。
     </div>
 
-    <h2>Storage</h2>
+    <h2>儲存</h2>
     <div>
-      This tool automatically saves your character sheet to your browser's local
-      storage. If you delete storage for this website, make sure to export your
-      sheet to json first.
+      本工具會自動將您的角色卡儲存於瀏覽器的 Local
+      Storage。若您刪除本網站的儲存資料，請務必先匯出角色 JSON 檔。
     </div>
 
-    <h2>Contact</h2>
+    <h2>聯絡</h2>
     <div>
-      Email me at <a href="mailto:maxpaulus43@gmail.com" target="_blank"
+      您可以透過 <a href="mailto:maxpaulus43@gmail.com" target="_blank"
         >maxpaulus43@gmail.com</a
-      >
-      I also lurk on the official Shadowdark discord channel.
+      > 聯絡我（英文），我也會出沒在 Shadowdark 官方 Discord 頻道。
     </div>
 
-    <h2>Issues</h2>
+    <h2>問題回報</h2>
     <div>
-      This project is free and open source! Feel free to make a pull request or
+      本專案為免費且開源！歡迎提交 Pull Request 或
       <a
         href="https://github.com/maxpaulus43/owlbear-shadowdark-character-sheet"
         target="_blank"
       >
-        create an issue
+        建立 Issue
       </a>
     </div>
 
-    <h2>Acknowledgements</h2>
-    <div>Check out these other awesome shadowdark tools!</div>
+    <h2>致謝</h2>
+    <div>看看其他很棒的 Shadowdark 工具！</div>
     <div>
       <a href="https://shadowdarklings.net" target="_blank"
         >https://shadowdarklings.net</a
@@ -69,22 +66,21 @@
       >
     </div>
 
-    <h2>License</h2>
+    <h2>授權</h2>
     <div>
-      This tool is an independent product published under the Shadowdark RPG
-      Third-Party License and is not affiliated with The Arcane Library, LLC.
-      Shadowdark RPG © 2023 The Arcane Library, LLC.
+      本工具為獨立產品，依據 Shadowdark RPG Third-Party License 發布，與 The
+      Arcane Library, LLC 無關。 Shadowdark RPG © 2023 The Arcane Library, LLC.
     </div>
     <hr />
     <div>
-      Disclaimer: I have explicit permission from The Arcane Library to reprint
-      character creation material (such as talent tables) in this tool.
+      免責聲明：我已獲得 The Arcane Library
+      明確許可，可於本工具轉載角色創建資料（如天賦表）。
     </div>
 
     <a
       href="https://www.buymeacoffee.com/tKsqTr4ABl"
       target="_blank"
-      class="pirata text-xl rounded-md p-2 self-center">Buy Me a Ration 🍖</a
+      class="pirata text-xl rounded-md p-2 self-center">請我吃份口糧 🍖</a
     >
   </div>
 </Modal>
