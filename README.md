@@ -1,71 +1,71 @@
-## Screenshots
+# ShadowDark Character Sheet (Traditional Chinese / 繁體中文版)
 
-### Main
+![Owlbear Rodeo Compatible](https://img.shields.io/badge/Owlbear%20Rodeo-Compatible-purple)
 
-![main.jpg](./screenshots/hero.jpg)
+**[English]**
+This project is a **Traditional Chinese localization fork** of the original [Owlbear ShadowDark Character Sheet](https://github.com/maxpaulus43/owlbear-shadowdark-character-sheet) created by Max Paulus.
+It provides a fully functional, localized character sheet for the ShadowDark RPG system within Owlbear Rodeo.
 
-### Gear
+**[中文]**
+本專案為 Max Paulus 製作之 [Owlbear ShadowDark Character Sheet](https://github.com/maxpaulus43/owlbear-shadowdark-character-sheet) 的 **繁體中文漢化版本**。
+它提供了一個可在 Owlbear Rodeo 中直接使用的全中文化 ShadowDark RPG 角色卡。
 
-![gear.jpg](./screenshots/gear.jpg)
+---
 
-### Spells
+## Installation / 安裝
 
-![spells.jpg](./screenshots/spells.jpg)
+**[English]**
+To use this extension in Owlbear Rodeo:
 
-### Talents
+1.  Copy the Manifest URL below:
+    ```
+    https://mouse76229.github.io/owlbear-shadowdark-character-sheet_CHT/manifest.json
+    ```
+2.  Open a room in [Owlbear Rodeo](https://www.owlbear.rodeo/).
+3.  Click the **Extras** (three dots) menu in the bottom-left toolbar.
+4.  Select **Extensions**.
+5.  Click the **+** (plus) button to add a custom extension.
+6.  Paste the URL and click **Install**.
 
-![talents.jpg](./screenshots/talents.jpg)
+**[中文]**
+若要在 Owlbear Rodeo 中使用此擴充功能：
 
-### Mobile
+1.  複製下方的 Manifest 網址：
+    ```
+    https://mouse76229.github.io/owlbear-shadowdark-character-sheet_CHT/manifest.json
+    ```
+2.  開啟 [Owlbear Rodeo](https://www.owlbear.rodeo/) 房間。
+3.  點擊左下角工具列的 **Extras**（三個點圖示）選單。
+4.  選擇 **Extensions**（擴充套件）。
+5.  點擊 **+**（加號）按鈕以新增自訂擴充套件。
+6.  貼上網址並點擊 **Install**（安裝）。
 
-![](./screenshots/mobile.jpg)
+---
 
+## Features / 功能
 
+**[English]**
+*   **Fully Localized**: UI, Items, Spells, Talents, and Descriptions are in Traditional Chinese.
+*   **Save Slots**: Save up to 5 different characters.
+*   **Import/Export**: Compatible with ShadowDarklings.net JSON format.
+*   **Automation**: Auto-calculate AC, Stats, and Bonuses.
+*   **Dice Rolling**: Integrated dice rolling with notifications.
 
-# Svelte + TS + Vite
+**[中文]**
+*   **全面中文化**：介面、物品、法術、天賦與描述皆已翻譯為繁體中文。
+*   **存檔欄位**：提供 5 個角色存檔欄位。
+*   **匯入/匯出**：相容 ShadowDarklings.net 的 JSON 格式。
+*   **自動計算**：自動計算防禦等級 (AC)、屬性與加值。
+*   **擲骰功能**：內建擲骰按鈕與結果通知。
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+---
 
-## Recommended IDE Setup
+## Credit / 致謝
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+*   **Original Author**: [Max Paulus](https://github.com/maxpaulus43)
+*   **Original Repository**: [owlbear-shadowdark-character-sheet](https://github.com/maxpaulus43/owlbear-shadowdark-character-sheet)
+*   **Localization**: For Traditional Chinese (Taiwan) users.
 
-## Need an official Svelte framework?
+---
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
-
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
-```
+> This is an unofficial fork and is not affiliated with The Arcane Library or Owlbear Rodeo.
