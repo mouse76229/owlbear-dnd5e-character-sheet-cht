@@ -17,6 +17,9 @@ import {
   SHIELD_PROPERTIES,
   GEAR_TYPES,
   NUMERICAL_BONUS_TOS,
+  SKILLS,
+  CONDITIONS,
+  SIZES,
 } from "./constants";
 
 export type L10nInfo = {
@@ -36,12 +39,15 @@ export type Roll = {
   diceType: DiceType;
   numDice: number;
 };
+export type Size = (typeof SIZES)[number];
 
 ///// Talent
+// In 5E, Talents are Feats or Class Features
 export type GenericTalent = {
   name: string;
   l10n?: L10nInfo;
   type: "generic";
+  desc?: string; // Enhanced description support
 };
 export type BonusTalent = Merge<
   GenericTalent,
@@ -60,27 +66,28 @@ export type ChooseBonusTalent = Merge<
 export type Talent = GenericTalent | BonusTalent | ChooseBonusTalent;
 
 ///// Spell
-export type SpellTier = 1 | 2 | 3 | 4 | 5;
+export type SpellTier = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type Spell = {
   name: string;
-  failed?: boolean; //  spellcasting check failed
+  prepared?: boolean; // 5E prepared spells
+  alwaysPrepared?: boolean; // Domain spells etc
+  ritual?: boolean;
 };
-export type SpellClass =
-  | Extract<Class, "Wizard" | "Priest">
-  | "PriestWizard"
-  | "Other";
+export type SpellClass = Class | "Other";
 export type SpellInfo = {
   name: string;
   class: SpellClass;
   stat?: Stat;
   tier: SpellTier;
-  range: RangeType;
-  duration: {
-    type: DurationType;
-    subType?: DurationSubType; // default to InGame time
-    roll?: Roll;
-    amt?: number;
+  range: string; // 5E ranges are specific (e.g. "60 feet")
+  duration: string; // "1 minute", "Instantaneous"
+  components?: {
+    verbal?: boolean;
+    somatic?: boolean;
+    material?: boolean;
+    materialDesc?: string;
   };
+  ritual?: boolean;
   editable?: boolean;
   desc: string;
   l10n?: L10nInfo;
@@ -88,54 +95,101 @@ export type SpellInfo = {
 
 ///// PlayerCharacter
 export type Alignment = (typeof ALIGNMENTS)[number];
-export type Deity = (typeof DEITIES)[number];
-export type Background = (typeof BACKGROUNDS)[number];
+export type Deity = (typeof DEITIES)[number] | string; // Allow custom deities
+export type Background = (typeof BACKGROUNDS)[number] | string;
 export type Class = (typeof CLASSES)[number];
-export type Title = (typeof TITLES)[number];
+export type Title = (typeof TITLES)[number] | string; // Titles are less strict in 5E
 export type Ancestry = (typeof ANCESTRIES)[number];
-export type Language = (typeof LANGUAGES)[number];
+export type Language = (typeof LANGUAGES)[number] | string;
 export type Stat = (typeof STATS)[number];
 export type StatBlock = {
   [key in Stat]: number;
 };
+export type Skill = (typeof SKILLS)[number];
+export type ProficiencyLevel = 0 | 1 | 2 | 0.5; // 0=None, 1=Proficient, 2=Expertise, 0.5=Jack of all trades
+
+// Hit Dice tracking
+export type HitDice = {
+  [key in DiceType]?: {
+    total: number;
+    current: number;
+  };
+};
+
 export type PlayerCharacter = {
   name: string;
   ancestry: Ancestry | "";
+  subancestry?: string; // High Elf, Mountain Dwarf etc
   hasCustomAncestry?: boolean;
   class?: Class | "";
+  subclass?: string; // Champion, Life Domain etc
   hasCustomClass?: boolean;
   level: number;
   title: Title;
   alignment: Alignment;
   background: Background;
   deity: Deity;
+
+  // Stats & Skills
+  stats: StatBlock;
+  skills: { [key in Skill]: ProficiencyLevel };
+  savingThrows: { [key in Stat]: boolean }; // Proficient in save?
+  proficiencyBonus: number;
+  passivePerception: number;
+  speed: number; // in feet
+  initiativeBonus?: number; // Misc bonus on top of DEX
+
+  // Health
+  maxHitPoints: number;
+  hitPoints: number;
+  tempHitPoints: number;
+  hitDice: HitDice;
+  deathSaves: {
+    successes: number;
+    failures: number;
+  };
+  conditions: string[]; // List of active condition names
+  exhaustion: number; // 0-6 level
+  armorClass: number;
+
+  // Equipment
   gear: Gear[];
   customGear: GearInfo[];
+  currency: {
+    cp: number;
+    sp: number;
+    ep: number;
+    gp: number;
+    pp: number;
+  };
+  carryingCapacity: number; // Calculated lbs limit
+
+  // Magic & Features
   notes: string;
-  stats: StatBlock;
   bonuses: Bonus[];
   customBonuses: Bonus[];
-  customTalents: Talent[];
-  maxHitPoints: number;
-  armorClass: number;
-  gearSlotsTotal: number;
-  gold: number;
-  silver: number;
-  copper: number;
+  customTalents: Talent[]; // Used for Feats and Features
   languages: string[];
   customLanguages: string[];
   xp: number;
+
+  // Spells
   spells: Spell[];
   customSpells: SpellInfo[];
-  hitPoints: number;
+  spellSlots: {
+    [key in SpellTier]?: {
+      max: number;
+      used: number;
+    };
+  };
 };
 
 /////// Bonus
 export type NumericalBonusTo = (typeof NUMERICAL_BONUS_TOS)[number];
 export type RollBonusTo = (typeof ROLL_BONUS_TOS)[number];
 export type BonusTo = (typeof BONUS_TOS)[number];
-export type BonusSourceCategory = "Ability" | "Talent";
-export type BonusSourceType = "Ancestry" | "Class" | "Gear" | "Talent";
+export type BonusSourceCategory = "Ability" | "Talent" | "Feat";
+export type BonusSourceType = "Ancestry" | "Class" | "Gear" | "Talent" | "Feat";
 export type WeaponBonusMetaData = {
   type: "weapon";
   weapon: string;
@@ -209,7 +263,7 @@ export type Bonus =
   | AdvantageBonus
   | DisadvantageBonus;
 
-///// ShadowDarklings
+///// ShadowDarklings (Legacy placeholder or repurposed)
 export type SDBonus = {
   sourceType: BonusSourceType;
   sourceName: string;
@@ -222,12 +276,13 @@ export type SDBonus = {
 };
 
 ///// Gear
-export type Cost = { gp: number; sp: number; cp: number };
+export type Cost = { gp: number; sp: number; cp: number; ep: number; pp: number; }; // keeping cost structure for basic compatibility, though 5E mostly uses GP
 export type Currency = keyof Cost;
 export type GearProperty =
   | ShieldProperty
   | WeaponProperty
   | "Magic"
+  | "Attunement"
   | "Attackable"; // attackable means it can show up in the attacks view
 export type GearType = (typeof GEAR_TYPES)[number];
 export type GearInfo = {
@@ -235,8 +290,8 @@ export type GearInfo = {
   properties?: GearProperty[];
   type: GearType;
   canBeEquipped: boolean;
-  slots: { perSlot: number; slotsUsed: number; freeCarry: number };
-  cost: Cost;
+  weight: number; // 5E uses weight in lbs
+  cost: Cost; // Standardize on GP value? Keeping Cost struct for now.
   desc?: string;
   playerBonuses?: Bonus[];
   editable?: boolean;
@@ -246,6 +301,7 @@ export type Gear = {
   name: string;
   quantity: number;
   equipped?: boolean;
+  attuned?: boolean;
 };
 
 ///// Weapon
@@ -259,8 +315,9 @@ export type WeaponInfo = Merge<
     damage: {
       oneHanded?: Roll;
       twoHanded?: Roll;
+      damageType?: string; // Slashing, Piercing, etc.
     };
-    range: RangeType | RangeType[];
+    range: string; // "30/120"
     weaponType: WeaponType;
   }
 >;
@@ -269,7 +326,9 @@ export type WeaponInfo = Merge<
 export type ShieldProperty = (typeof SHIELD_PROPERTIES)[number];
 export type ArmorAC = {
   base: number;
-  modifier: number;
+  modifier: number; // Max Dex Mod etc
+  maxDex?: number; // Max Dex bonus allowed (2 for Medium, 0 for Heavy)
+  stealthDisadvantage?: boolean;
   stat?: Stat;
 };
 export type ArmorInfo = Merge<
@@ -278,6 +337,7 @@ export type ArmorInfo = Merge<
     type: "Armor";
     properties?: ShieldProperty[];
     ac: ArmorAC;
+    minStr?: number; // Str required to wear
   }
 >;
 

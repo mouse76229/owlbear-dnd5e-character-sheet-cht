@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { STATS, RANGE_TYPES, DICE_TYPES, TIME_UNITS } from "../../constants";
-  import type { DiceType, SpellInfo, SpellTier } from "../../types";
+  import { STATS, CLASSES } from "../../constants";
+  import type { SpellInfo, SpellTier, Class } from "../../types";
   import { pc } from "../../model/PlayerCharacter";
   import { createEventDispatcher } from "svelte";
-
   import { t_Stat } from "../../translations";
 
   const dispatch = createEventDispatcher();
@@ -11,61 +10,43 @@
   export let spellToEdit: SpellInfo = undefined;
   let currSpell = $pc.spells.find((s) => s.name === spellToEdit?.name);
 
-  let spellName = spellToEdit?.name;
-  let spellDesc = spellToEdit?.desc;
+  let spellName = spellToEdit?.name ?? "";
+  let spellDesc = spellToEdit?.desc ?? "";
 
-  $: isValid = Boolean(spellName && spellDesc);
-
-  let spellTier = `${spellToEdit?.tier ?? 1}`;
-  let spellDurationT: "Instant" | "Focus" | "Time" = "Instant";
-  let spellDurationType = spellToEdit?.duration?.type ?? "Round";
-  let spellDurationSubType = spellToEdit?.duration?.subType ?? "InGame";
+  // 5E logic
+  let spellTier = spellToEdit?.tier ?? 0;
   let spellClass = spellToEdit?.class ?? "Wizard";
-  let spellRange = spellToEdit?.range ?? "Self";
-  let spellRollDiceType = spellToEdit?.duration?.roll?.diceType ?? "d8";
-  let spellAmt = spellToEdit?.duration?.amt ?? 1;
   let spellStat = spellToEdit?.stat ?? "INT";
+  let spellRange = spellToEdit?.range ?? "60 feet";
+  let spellDuration = spellToEdit?.duration ?? "Instantaneous";
 
-  const rangeMap: Record<string, string> = {
-    Self: "自身",
-    Close: "貼身",
-    Near: "近距",
-    Far: "遠距",
-  };
-  const timeUnitMap: Record<string, string> = {
-    Round: "回合",
-    Minute: "分鐘",
-    Hour: "小時",
-    Day: "天",
-  };
+  // Components
+  let compV = spellToEdit?.components?.verbal ?? false;
+  let compS = spellToEdit?.components?.somatic ?? false;
+  let compM = spellToEdit?.components?.material ?? false;
+  let compMDesc = spellToEdit?.components?.materialDesc ?? "";
+  let isRitual = spellToEdit?.ritual ?? false;
+
+  $: isValid = spellName.length > 0 && spellDesc.length > 0;
 
   function onCreateSpell() {
-    const durType =
-      spellDurationT === "Time" ? spellDurationType : spellDurationT;
     const s: SpellInfo = {
       editable: true,
       name: spellName,
-      class: spellClass,
+      class: spellClass as Class,
       stat: spellStat,
-      tier: parseInt(spellTier) as SpellTier,
+      tier: spellTier as SpellTier,
       range: spellRange,
-      duration: {
-        type: durType,
+      duration: spellDuration,
+      components: {
+        verbal: compV,
+        somatic: compS,
+        material: compM,
+        materialDesc: compMDesc,
       },
+      ritual: isRitual,
       desc: spellDesc,
     };
-
-    if (spellDurationT === "Time") {
-      s.duration.subType = spellDurationSubType;
-      if (spellRollDiceType.length > 0) {
-        s.duration.roll = {
-          diceType: spellRollDiceType as DiceType,
-          numDice: spellAmt,
-        };
-      } else {
-        s.duration.amt = spellAmt;
-      }
-    }
 
     if (spellToEdit) {
       Object.assign(spellToEdit, s);
@@ -82,86 +63,118 @@
   }
 </script>
 
-<div class="w-full flex flex-col gap-1 min-w-[250px]">
-  <label for="spellName">名稱</label>
-  <input type="text" id="spellName" bind:value={spellName} />
+<div class="flex flex-col gap-2 max-h-[80vh] overflow-y-auto p-2">
+  <div class="flex flex-col gap-1">
+    <label for="spellName" class="font-bold"
+      >法術名稱<span class="text-red-700">*</span></label
+    >
+    <input
+      type="text"
+      id="spellName"
+      class="border p-1 rounded"
+      bind:value={spellName}
+    />
+  </div>
 
-  <label for="spellClass">職業</label>
-  <select bind:value={spellClass}>
-    <option value="Priest">牧師</option>
-    <option value="Wizard">法師</option>
-    <option value="PriestWizard">牧師或法師</option>
-    <option value="Other">其他</option>
-  </select>
-
-  <label for="spellTier">環階</label>
-  <select bind:value={spellTier}>
-    <option>1</option>
-    <option>2</option>
-    <option>3</option>
-    <option>4</option>
-    <option>5</option>
-  </select>
-
-  <label for="spellStat">法術屬性</label>
-  <select bind:value={spellStat}>
-    {#each STATS as s}
-      <option value={s}>{t_Stat(s)}</option>
-    {/each}
-  </select>
-
-  <label for="spellRange">距離</label>
-  <select bind:value={spellRange}>
-    {#each RANGE_TYPES as r}
-      <option value={r}>{rangeMap[r] ?? r}</option>
-    {/each}
-  </select>
-
-  <label for="spellDuration">類型</label>
-  <select bind:value={spellDurationT}>
-    <option value="Focus">專注</option>
-    <option value="Instant">瞬間</option>
-    <option value="Time">持續</option>
-  </select>
-
-  {#if spellDurationT === "Time"}
-    <label for="">持續多久？</label>
-    <div class="flex gap-1">
-      <input
-        id="dice"
-        type="number"
-        min="1"
-        inputmode="numeric"
-        bind:value={spellAmt}
-        class="w-10 text-center"
-      />
-      <select bind:value={spellRollDiceType}>
-        <option />
-        {#each DICE_TYPES as d}
-          <option>{d}</option>
+  <div class="flex gap-2">
+    <div class="flex flex-col w-1/2">
+      <label for="spellClass" class="font-bold">職業列表</label>
+      <select
+        id="spellClass"
+        bind:value={spellClass}
+        class="border p-1 rounded"
+      >
+        {#each CLASSES as c}
+          <option value={c}>{c}</option>
         {/each}
+        <option value="Other">其他</option>
       </select>
-      <select bind:value={spellDurationType}>
-        {#each TIME_UNITS as t}
-          <option value={t}>{timeUnitMap[t] ?? t}</option>
+    </div>
+    <div class="flex flex-col w-1/2">
+      <label for="spellTier" class="font-bold">環階 (0=戲法)</label>
+      <select id="spellTier" bind:value={spellTier} class="border p-1 rounded">
+        {#each Array(10) as _, i}
+          <option value={i}>{i}</option>
         {/each}
       </select>
     </div>
+  </div>
 
-    {#if spellDurationType !== "Round"}
-      <label for="durSubType">遊戲內時間或現實時間？</label>
-      <select id="durSubType" bind:value={spellDurationSubType}>
-        <option value="InGame">遊戲內時間</option>
-        <option value="RealTime">現實時間</option>
+  <div class="flex gap-2">
+    <div class="flex flex-col w-1/2">
+      <label for="spellStat" class="font-bold">施法關鍵屬性</label>
+      <select id="spellStat" bind:value={spellStat} class="border p-1 rounded">
+        {#each STATS as s}
+          <option value={s}>{t_Stat(s)}</option>
+        {/each}
       </select>
-    {/if}
-  {/if}
+    </div>
+    <div class="flex flex-col w-1/2">
+      <label for="spellRange" class="font-bold">距離 (例如: 60 ft)</label>
+      <input
+        type="text"
+        id="spellRange"
+        class="border p-1 rounded"
+        bind:value={spellRange}
+      />
+    </div>
+  </div>
 
-  <label for="spellDesc">描述</label>
-  <textarea id="spellDesc" cols="10" bind:value={spellDesc} />
+  <div class="flex flex-col gap-1">
+    <label for="spellDuration" class="font-bold"
+      >持續時間 (例如: 1 Minute)</label
+    >
+    <div class="flex gap-2">
+      <input
+        type="text"
+        id="spellDuration"
+        class="border p-1 rounded w-full"
+        bind:value={spellDuration}
+      />
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-1 border p-2 rounded bg-gray-50">
+    <span class="font-bold text-sm">構材 (Components)</span>
+    <div class="flex gap-4">
+      <label class="flex items-center gap-1"
+        ><input type="checkbox" bind:checked={compV} /> Verbal (V)</label
+      >
+      <label class="flex items-center gap-1"
+        ><input type="checkbox" bind:checked={compS} /> Somatic (S)</label
+      >
+      <label class="flex items-center gap-1"
+        ><input type="checkbox" bind:checked={compM} /> Material (M)</label
+      >
+    </div>
+    {#if compM}
+      <input
+        type="text"
+        placeholder="材料描述 (例如: 一根樹枝)"
+        class="border p-1 rounded text-sm w-full mt-1"
+        bind:value={compMDesc}
+      />
+    {/if}
+  </div>
+
+  <label class="flex items-center gap-1 font-bold">
+    <input type="checkbox" bind:checked={isRitual} /> 儀式法術 (Ritual)
+  </label>
+
+  <div class="flex flex-col gap-1">
+    <label for="spellDesc" class="font-bold"
+      >描述<span class="text-red-700">*</span></label
+    >
+    <textarea
+      id="spellDesc"
+      rows="5"
+      class="border p-1 rounded"
+      bind:value={spellDesc}
+    />
+  </div>
 
   <button
-    class="bg-black text-white p-2"
+    class="bg-black text-white p-2 rounded font-bold shadow hover:bg-gray-800 transition-colors mt-2"
     disabled={!isValid}
     class:opacity-50={!isValid}
     on:click={() => onCreateSpell()}
@@ -170,7 +183,7 @@
 </div>
 
 <style lang="postcss">
-  input {
-    @apply transition-all;
+  input[type="checkbox"] {
+    @apply w-4 h-4;
   }
 </style>

@@ -3,114 +3,120 @@
   import { pc } from "../../model/PlayerCharacter";
   import TextInput from "../TextInput.svelte";
   import SpellView from "./SpellView.svelte";
+  import { CLASSES } from "../../constants";
+  import type { Class } from "../../types";
 
   let spellInput: string = "";
   let showFilters = true;
 
-  let showTier1 = true;
-  let showTier2 = true;
-  let showTier3 = true;
-  let showTier4 = true;
-  let showTier5 = true;
-
-  let showPriest = true;
-  let showWizard = true;
-  let showOther = true;
-
-  let showSelf = true;
-  let showClose = true;
-  let showNear = true;
-  let showFar = true;
+  // New Filters
+  let filterMinTier = 0;
+  let filterMaxTier = 9;
+  let filterClass: string = "All"; // "All" or Class Name
 
   let showCustom = false;
 
   $: spells = Object.values(SPELL_COMPENDIUM)
     .concat($pc.customSpells ?? [])
     .filter((s) => {
-      if (!showTier1 && s.tier === 1) return false;
-      if (!showTier2 && s.tier === 2) return false;
-      if (!showTier3 && s.tier === 3) return false;
-      if (!showTier4 && s.tier === 4) return false;
-      if (!showTier5 && s.tier === 5) return false;
-      if (!showPriest && s.class === "Priest") return false;
-      if (!showWizard && s.class === "Wizard") return false;
-      if (!showOther && s.class === "Other") return false;
-      if (!showSelf && s.range === "Self") return false;
-      if (!showClose && s.range === "Close") return false;
-      if (!showNear && s.range === "Near") return false;
-      if (!showFar && s.range === "Far") return false;
+      // Tier Check
+      if (s.tier < filterMinTier || s.tier > filterMaxTier) return false;
+
+      // Class Check
+      if (filterClass !== "All" && s.class !== filterClass) return false;
+
+      // Custom Check
       if (showCustom && !$pc.customSpells.find((cs) => cs.name === s.name))
         return false;
 
       const term = spellInput.toLowerCase();
+      if (!term) return true;
+
       return (
         s.name.toLowerCase().includes(term) ||
         s.desc.toLowerCase().includes(term) ||
-        s.duration.type.toLowerCase().includes(term)
+        (s.l10n?.name?.toLowerCase().includes(term) ?? false)
       );
+    })
+    .sort((a, b) => {
+      // Sort by Tier, then Name
+      if (a.tier !== b.tier) return a.tier - b.tier;
+      return a.name.localeCompare(b.name);
     });
 </script>
 
-<div class="flex flex-col gap-1">
-  <div class="sticky top-0 flex flex-col bg-white p-3">
+<div class="flex flex-col gap-1 h-full overflow-hidden">
+  <div class="sticky top-0 bg-white p-2 border-b z-10">
     <TextInput
       bind:value={spellInput}
-      placeholder="搜尋 例如: 燃燒之手"
-      class="w-full"
+      placeholder="搜尋法術..."
+      class="w-full mb-2"
     />
-    <button class="blk-btn" on:click={() => (showFilters = !showFilters)}
-      >{showFilters ? "隱藏" : "顯示"} 過濾器</button
-    >
+
+    <div class="flex gap-2 items-center text-sm mb-2 flex-wrap">
+      <button
+        class="text-blue-700 underline text-xs"
+        on:click={() => (showFilters = !showFilters)}
+      >
+        {showFilters ? "隱藏過濾" : "顯示過濾"}
+      </button>
+      <label class="flex gap-1 items-center ml-auto">
+        <input type="checkbox" bind:checked={showCustom} /> 只顯示自訂
+      </label>
+    </div>
+
     {#if showFilters}
-      <div class="flex gap-1 items-center">
-        <div class="font-bold">環階:</div>
-        <input id="showTier1" type="checkbox" bind:checked={showTier1} />
-        <label for="showTier1">1</label>
-        <input id="showTier2" type="checkbox" bind:checked={showTier2} />
-        <label for="showTier2">2</label>
-        <input id="showTier3" type="checkbox" bind:checked={showTier3} />
-        <label for="showTier3">3</label>
-        <input id="showTier4" type="checkbox" bind:checked={showTier4} />
-        <label for="showTier4">4</label>
-        <input id="showTier5" type="checkbox" bind:checked={showTier5} />
-        <label for="showTier5">5</label>
-      </div>
-      <div class="flex gap-1 items-center">
-        <div class="font-bold">職業:</div>
-        <input id="showPriest" type="checkbox" bind:checked={showPriest} />
-        <label for="showPriest">牧師</label>
-        <input id="showWizard" type="checkbox" bind:checked={showWizard} />
-        <label for="showWizard">法師</label>
-        <input id="showOther" type="checkbox" bind:checked={showOther} />
-        <label for="showWizard">其他</label>
-      </div>
-      <div class="flex gap-1 items-center">
-        <div class="font-bold">距離:</div>
-        <input id="showSelf" type="checkbox" bind:checked={showSelf} />
-        <label for="showSelf">自身</label>
-        <input id="showClose" type="checkbox" bind:checked={showClose} />
-        <label for="showClose">貼身</label>
-        <input id="showNear" type="checkbox" bind:checked={showNear} />
-        <label for="showNear">近距</label>
-        <input id="showFar" type="checkbox" bind:checked={showFar} />
-        <label for="showFar">遠距</label>
-      </div>
-      <div class="flex gap-1 items-center">
-        <label for="showCustom" class="font-bold">自訂</label>
-        <input id="showCustom" type="checkbox" bind:checked={showCustom} />
+      <div class="flex flex-col gap-2 bg-gray-50 p-2 rounded text-sm">
+        <div class="flex gap-2 items-center">
+          <label for="minTier" class="font-bold">環階:</label>
+          <select
+            id="minTier"
+            bind:value={filterMinTier}
+            class="border rounded"
+          >
+            {#each Array(10) as _, i}
+              <option value={i}>{i}</option>
+            {/each}
+          </select>
+          <span>-</span>
+          <select
+            id="maxTier"
+            bind:value={filterMaxTier}
+            class="border rounded"
+          >
+            {#each Array(10) as _, i}
+              <option value={i}>{i}</option>
+            {/each}
+          </select>
+        </div>
+
+        <div class="flex gap-2 items-center">
+          <label for="classFilter" class="font-bold">職業:</label>
+          <select
+            id="classFilter"
+            bind:value={filterClass}
+            class="border rounded max-w-[200px]"
+          >
+            <option value="All">全部</option>
+            {#each CLASSES as c}
+              <option value={c}>{c}</option>
+            {/each}
+          </select>
+        </div>
       </div>
     {/if}
   </div>
-  <div>
-    <ol>
-      {#each spells as s}
-        <li>
-          <div class="shadow-md border border-gray-200 mb-3 p-2">
-            <SpellView {s} />
-          </div>
-        </li>
+
+  <div class="overflow-y-auto p-2 flex-1">
+    {#if spells.length === 0}
+      <div class="text-center text-gray-500 mt-10">沒有符合的法術</div>
+    {:else}
+      {#each spells as s (s.name)}
+        <div class="mb-4 break-inside-avoid">
+          <SpellView {s} />
+        </div>
       {/each}
-    </ol>
+    {/if}
   </div>
 </div>
 

@@ -48,15 +48,16 @@
 
   function getCostForGear(g: GearInfo): string {
     const { gp, sp, cp } = g.cost;
-    let gpStr: string, spStr: string, cpStr: string;
-    if (gp) gpStr = `${gp}gp`;
-    if (sp) spStr = `${sp}sp`;
-    if (cp) cpStr = `${cp}cp`;
-    return [gpStr, spStr, cpStr].join(" ");
+    let parts = [];
+    if (gp) parts.push(`${gp}gp`);
+    if (sp) parts.push(`${sp}sp`);
+    if (cp) parts.push(`${cp}cp`);
+    return parts.length > 0 ? parts.join(" ") : "0cp";
   }
 
   function deleteCustomGear(gear: GearInfo) {
     $pc.gear = $pc.gear.filter((g) => g.name !== gear.name);
+    // Cleanup bonuses
     $pc.bonuses = $pc.bonuses.filter((b) => {
       if (b.metadata?.type === "weapon" && b.metadata.weapon === gear.name)
         return false;
@@ -68,64 +69,80 @@
   }
 </script>
 
-<div class="border-b flex flex-col gap-1">
-  <TextInput
-    bind:value={gearInput}
-    placeholder="搜尋 例如: 火把"
-    class="w-full"
-  />
-  <div class="flex gap-1 items-center flex-wrap">
-    <div class="font-bold">過濾:</div>
-    <input id="showWeapon" type="checkbox" bind:checked={showWeapon} />
-    <label for="showWeapon">武器</label>
-    <input id="showArmor" type="checkbox" bind:checked={showArmor} />
-    <label for="showArmor">防具</label>
-    <input id="showBasic" type="checkbox" bind:checked={showBasic} />
-    <label for="showBasic">基礎</label>
-    <input id="showCustom" type="checkbox" bind:checked={showCustom} />
-    <label for="showCustom">自訂</label>
-    <input
-      id="showAffordable"
-      type="checkbox"
-      bind:checked={showOnlyWhatICanAfford}
+<div class="border-b flex flex-col gap-1 h-full overflow-hidden">
+  <div class="p-2 border-b">
+    <TextInput
+      bind:value={gearInput}
+      placeholder="搜尋 例如: 長劍"
+      class="w-full"
     />
-    <label for="showAffordable">可負擔</label>
+    <div class="flex gap-1 items-center flex-wrap text-sm mt-1">
+      <div class="font-bold">過濾:</div>
+      <label class="flex gap-1 items-center">
+        <input type="checkbox" bind:checked={showWeapon} /> 武器
+      </label>
+      <label class="flex gap-1 items-center">
+        <input type="checkbox" bind:checked={showArmor} /> 防具
+      </label>
+      <label class="flex gap-1 items-center">
+        <input type="checkbox" bind:checked={showBasic} /> 基礎
+      </label>
+      <label class="flex gap-1 items-center">
+        <input type="checkbox" bind:checked={showCustom} /> 自訂
+      </label>
+      <label class="flex gap-1 items-center border-l pl-1 ml-1 border-gray-400">
+        <input type="checkbox" bind:checked={showOnlyWhatICanAfford} /> 買得起
+      </label>
+    </div>
   </div>
-  <div>
-    <table class="w-full">
-      <thead class="text-left sticky top-0 bg-white">
+
+  <div class="overflow-auto flex-1">
+    <table class="w-full text-sm">
+      <thead class="text-left sticky top-0 bg-white shadow-sm z-10">
         <tr>
-          <th>名稱</th>
-          <th>價格</th>
-          <th>格數</th>
+          <th class="pl-2 py-1">名稱</th>
+          <th class="py-1">價格</th>
+          <th class="py-1">重量</th>
+          <th class="pr-2 py-1"></th>
         </tr>
       </thead>
       <tbody>
         {#each allResults as g, i}
-          <tr class="border-b" class:bg-gray-100={i % 2 == 0}>
-            <td class="pl-3">{g.l10n?.name ?? g.name}</td>
-            <td>{getCostForGear(g)}</td>
-            <td>{g.slots.freeCarry ? "免費" : g.slots.slotsUsed}</td>
-            <td class="flex justify-end gap-1">
+          <tr
+            class="border-b hover:bg-gray-50 text-xs"
+            class:bg-gray-50={i % 2 == 0}
+          >
+            <td class="pl-2 py-2">
+              <div class="font-bold">{g.l10n?.name ?? g.name}</div>
+              {#if g.desc}
+                <div class="text-gray-500 truncate max-w-[120px]">{g.desc}</div>
+              {/if}
+            </td>
+            <td class="whitespace-nowrap">{getCostForGear(g)}</td>
+            <td>{g.weight ?? 0} lb</td>
+            <td class="flex justify-end gap-1 pr-2 py-2 items-center">
               {#if g.editable}
                 <button
-                  class="bg-black rounded-md text-white px-1 text-xs"
+                  class="bg-gray-800 rounded text-white px-1 py-0.5"
+                  title="刪除"
                   on:click={() => deleteCustomGear(g)}
-                  ><i class="material-icons">delete</i></button
+                  ><i class="material-icons text-sm">delete</i></button
                 >
                 <button
-                  class="bg-black rounded-md text-white px-1 text-xs"
+                  class="bg-gray-800 rounded text-white px-1 py-0.5"
+                  title="編輯"
                   on:click={() => {
                     gear = g;
                     showCustomGearEditModal = true;
-                  }}><i class="material-icons">edit</i></button
+                  }}><i class="material-icons text-sm">edit</i></button
                 >
               {/if}
               <button
                 on:click={() => addGear(g)}
-                class="px-3 hover:bg-gray-400"
+                class="text-green-700 hover:text-green-900"
+                title="購買/加入"
               >
-                <i class="material-icons translate-y-1">add_circle</i>
+                <i class="material-icons">add_circle</i>
               </button>
             </td>
           </tr>

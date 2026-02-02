@@ -2,47 +2,25 @@
   import CustomGearButton from "./CustomGearButton.svelte";
   import GearButton from "./GearButton.svelte";
   import { findAny } from "../../compendium";
-  import { calculateGearSlotsForPlayer, pc } from "../../model/PlayerCharacter";
+  import { calculateCarryingCapacity, calculateTotalWeight, pc } from "../../model/PlayerCharacter";
   import { alphabetically } from "../../utils";
   import type { Gear } from "../../types";
+  import { weightForGear } from "../../model/Gear";
 
-  const COIN_NAME = "額外錢幣";
-  $: costlyGear = $pc.gear
-    .filter((g) => findAny(g.name)?.slots.freeCarry === 0)
-    .sort((a, b) => alphabetically(a.name, b.name));
+  // Gear sorting: by name
+  $: gearList = $pc.gear.sort((a, b) => alphabetically(a.name, b.name));
 
-  $: totalCoins = $pc.gold + $pc.silver + $pc.copper;
-
-  $: if (costlyGear && totalCoins > 100) {
-    costlyGear.push({
-      name: COIN_NAME,
-      quantity: totalCoins - 100,
-    });
-  }
-
-  $: freeGear = $pc.gear
-    .filter((g) => findAny(g.name)?.slots.freeCarry)
-    .sort((a, b) => alphabetically(a.name, b.name));
-
-  $: totalSlots = calculateGearSlotsForPlayer($pc);
-
-  $: freeSlots =
-    totalSlots -
-    costlyGear.reduce((acc, curr) => {
-      return acc + slotsForGear(curr);
-    }, 0);
-
-  function slotsForGear(g: Gear): number {
-    if (g.name === COIN_NAME) {
-      return Math.ceil(g.quantity / 100);
-    }
-
-    const foundGear = findAny(g.name);
-    return (
-      Math.ceil(g.quantity / foundGear.slots.perSlot) *
-      foundGear.slots.slotsUsed
-    );
-  }
+  $: totalWeight = calculateTotalWeight($pc);
+  $: carryingCapacity = calculateCarryingCapacity($pc);
+  
+  // 5E Encumbrance Variation: if > capacity, speed drops to 5.
+  // Standard rule: if > capacity, speed drops to 5.
+  // Variant Encumbrance: 
+  // - Encumbered > STR * 5 (-10 speed)
+  // - Heavily Encumbered > STR * 10 (-20 speed, disadv on STR/DEX/CON)
+  // - Push/Drag/Lift > STR * 30
+  // For now using simple capacity check.
+  $: isOverloaded = totalWeight > carryingCapacity;
 
   function deleteGear(name: string) {
     const idx = $pc.gear.findIndex((g) => g.name === name);
@@ -59,121 +37,112 @@
     g.equipped = !g.equipped;
     $pc = $pc;
   }
-
-  function canInteractWithGear(_gear: Gear): boolean {
-    return true;
-    // as nice as this is, it is ultimately limiting to the player's creativity
-    // if (gear.equipped) return true;
-    // return gear.equipped || canPlayerEquipGear($pc, gear);
+  
+  function toggleAttuned(g: Gear) {
+    g.attuned = !g.attuned;
+    $pc = $pc;
   }
 </script>
 
-<div class="flex gap-1 p-1">
-  <h2>裝備</h2>
-  <span>({totalSlots} 格, {freeSlots} 空位)</span>
-  <GearButton />
-  <CustomGearButton />
+<div class="flex gap-1 p-1 items-center justify-between">
+  <div class="flex gap-2 items-center">
+    <h2>裝備</h2>
+    <span class:text-red-600={isOverloaded}>
+      {totalWeight} / {carryingCapacity} lb
+      {#if isOverloaded}(超重){/if}
+    </span>
+  </div>
+  <div class="flex gap-1">
+    <GearButton />
+    <CustomGearButton />
+  </div>
 </div>
-{#if freeSlots < 0}
-  <div class="text-red-600">負重過重</div>
-{/if}
 
-<div class="flex gap-1">
-  <div class="flex items-center">
-    <div>GP:</div>
-    <input
-      type="number"
-      inputmode="numeric"
-      bind:value={$pc.gold}
-      class="w-16"
-    />
+<!-- Currency -->
+<div class="flex gap-2 p-1 border-b border-gray-300 pb-2 mb-2 flex-wrap text-sm">
+  <div class="flex items-center gap-1">
+    <label for="pp">PP</label>
+    <input type="number" id="pp" bind:value={$pc.currency.pp} class="w-12 border rounded px-1" />
   </div>
-  <div class="flex items-center">
-    <div>SP:</div>
-    <input
-      type="number"
-      inputmode="numeric"
-      bind:value={$pc.silver}
-      class="w-16"
-    />
+  <div class="flex items-center gap-1">
+    <label for="gp">GP</label>
+    <input type="number" id="gp" bind:value={$pc.currency.gp} class="w-12 border rounded px-1" />
   </div>
-  <div class="flex items-center">
-    <div>CP:</div>
-    <input
-      type="number"
-      inputmode="numeric"
-      bind:value={$pc.copper}
-      class="w-16"
-    />
+  <div class="flex items-center gap-1">
+    <label for="ep">EP</label>
+    <input type="number" id="ep" bind:value={$pc.currency.ep} class="w-12 border rounded px-1" />
+  </div>
+  <div class="flex items-center gap-1">
+    <label for="sp">SP</label>
+    <input type="number" id="sp" bind:value={$pc.currency.sp} class="w-12 border rounded px-1" />
+  </div>
+  <div class="flex items-center gap-1">
+    <label for="cp">CP</label>
+    <input type="number" id="cp" bind:value={$pc.currency.cp} class="w-12 border rounded px-1" />
   </div>
 </div>
 
 <div
-  class="overflow-scroll flex flex-col gap-1 p-2"
+  class="overflow-scroll flex flex-col gap-1 p-2 h-full"
   style="box-shadow: inset 0 0 5px #000;"
 >
-  <ul>
-    {#each costlyGear as g, i}
-      <li>
-        <div
-          class="flex gap-1 items-center justify-between border-b border-gray-400"
-        >
-          <div class="flex justify-between">
-            <span>
-              {i + 1}. {findAny(g.name)?.l10n?.name ?? g.name} x {g.quantity} ({slotsForGear(
-                g,
-              )} 格)
-            </span>
-          </div>
-          {#if g.name !== COIN_NAME}
-            <div class="flex gap-1 items-center">
-              {#if findAny(g.name).canBeEquipped}
-                <input
-                  title="equipped"
-                  type="checkbox"
-                  class="w-6 h-6"
-                  checked={g.equipped}
-                  disabled={!canInteractWithGear(g)}
-                  on:click={() => toggleEquipped(g)}
-                />
-              {/if}
-              <button
-                on:click={() => deleteGear(g.name)}
-                class="px-1 pt-1 rounded-md bg-black text-white"
-                ><i class="material-icons">delete</i></button
-              >
+  <ul class="flex flex-col gap-1">
+    {#each gearList as g, i}
+      <li class="border-b border-gray-300 pb-1">
+        <div class="flex gap-1 items-center justify-between">
+          <div class="flex flex-col w-full">
+            <div class="flex justify-between items-center w-full">
+               <span class="font-bold">
+                 {findAny(g.name)?.l10n?.name ?? g.name} 
+                 {#if g.quantity > 1}x {g.quantity}{/if}
+               </span>
+               <span class="text-xs text-gray-500">
+                 {weightForGear(g)} lb
+               </span>
             </div>
-          {/if}
-        </div>
-      </li>
-    {/each}
-  </ul>
-  <h2>免費攜帶</h2>
-  <ul>
-    {#each freeGear as g, i}
-      <li>
-        <div
-          class="flex gap-1 items-center justify-between border-b border-gray-400"
-        >
-          <span
-            >{i + 1 + ". "}{findAny(g.name)?.l10n?.name ?? g.name} x {g.quantity}</span
-          >
-          <div class="flex gap-1 items-center">
-            {#if findAny(g.name).canBeEquipped}
-              <input
-                title="equipped"
-                type="checkbox"
-                class="w-6 h-6"
-                checked={g.equipped}
-                disabled={!canInteractWithGear(g)}
-                on:click={() => toggleEquipped(g)}
-              />
+            {#if findAny(g.name)?.desc}
+              <div class="text-xs text-gray-600 truncate max-w-[200px]">
+                {findAny(g.name)?.desc}
+              </div>
             {/if}
-            <button
-              on:click={() => deleteGear(g.name)}
-              class="px-1 pt-1 rounded-md bg-black text-white"
-              ><i class="material-icons">delete</i></button
-            >
+          </div>
+          
+          <div class="flex gap-2 items-center flex-shrink-0">
+             <!-- Equip Toggle -->
+             {#if findAny(g.name)?.canBeEquipped}
+               <label class="flex flex-col items-center">
+                 <input
+                   title="Equipped"
+                   type="checkbox"
+                   class="w-5 h-5"
+                   checked={g.equipped}
+                   on:click={() => toggleEquipped(g)}
+                 />
+                 <span class="text-[10px]">裝備</span>
+               </label>
+             {/if}
+             
+             <!-- Attunement Toggle (New for 5E) -->
+             {#if findAny(g.name)?.properties?.includes("Attunement")}
+               <label class="flex flex-col items-center text-purple-700">
+                 <input
+                   title="Attuned"
+                   type="checkbox"
+                   class="w-5 h-5 accent-purple-600"
+                   checked={g.attuned}
+                   on:click={() => toggleAttuned(g)}
+                 />
+                 <span class="text-[10px]">同調</span>
+               </label>
+             {/if}
+
+             <button
+               on:click={() => deleteGear(g.name)}
+               class="p-1 rounded bg-black text-white hover:bg-gray-700"
+               title="Delete"
+             >
+               <i class="material-icons text-sm">delete</i>
+             </button>
           </div>
         </div>
       </li>

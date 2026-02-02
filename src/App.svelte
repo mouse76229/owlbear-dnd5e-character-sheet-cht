@@ -61,6 +61,10 @@
   function onTitleInput(e: Event) {
     $pc.title = (e.target as HTMLInputElement).value;
   }
+
+  function getClass(c: string) {
+    return c as any;
+  }
 </script>
 
 <div class="flex items-center justify-center bg-black">
@@ -208,7 +212,9 @@
               on:input={onTitleInput}
             />
           {:else}
-            <div>{t_Title(title ?? $pc.title, $pc.class, $pc.alignment)}</div>
+            <div>
+              {t_Title(title ?? $pc.title, getClass($pc.class), $pc.alignment)}
+            </div>
           {/if}
         </div>
         <div class="col-span-full cell">

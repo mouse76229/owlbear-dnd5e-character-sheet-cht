@@ -15,25 +15,17 @@
   import { t_Class } from "../../translations";
 
   export let s: SpellInfo;
-  $: duration = s.duration.amt > 0 ? s.duration.amt : "";
-  // In Chinese we don't need plural 's'
-  $: theS = "";
+  // 5E Duration is a simple string string
+  $: duration = s.duration;
+
   let dispatch = createEventDispatcher();
   let showCustomSpellEditModal = false;
 
-  const typeMap: Record<string, string> = {
-    Instant: "瞬間",
-    Round: "回合",
-    Focus: "專注",
-    Minute: "分鐘",
-    Hour: "小時",
-    Day: "天",
-  };
   const rangeMap: Record<string, string> = {
     Self: "自身",
-    Close: "貼身",
-    Near: "近距",
-    Far: "遠距",
+    Touch: "觸碰",
+    Sight: "視線",
+    // 5E uses specific feet, hard to map all, so we fallback to original string
   };
 
   function learnSpell(s: SpellInfo) {
@@ -50,61 +42,95 @@
     $pc = $pc;
     dispatch("close");
   }
+
+  function getRangeDisplay(r: string): string {
+    return rangeMap[r] ?? r;
+  }
 </script>
 
-<div class="shadow-md border border-gray-200 mb-3 p-2">
-  <div>
-    <span class="font-bold text-lg">{s.l10n?.name ?? s.name}</span>
-    <span>(環階 {s.tier}, {t_Class(s.class)})</span>
-  </div>
-  {#if s.stat}
-    <div>
-      <span class="font-bold">屬性:</span>
-      <span>{s.stat}</span>
+<div class="shadow-md border border-gray-200 mb-3 p-3 rounded-md bg-white">
+  <div class="flex flex-col border-b pb-2 mb-2">
+    <div class="flex justify-between items-baseline">
+      <span class="font-bold text-lg text-purple-900"
+        >{s.l10n?.name ?? s.name}</span
+      >
+      <span class="text-sm font-bold text-gray-600">
+        {s.tier === 0 ? "戲法" : `${s.tier} 環`}
+        {#if s.ritual}
+          (儀式){/if}
+      </span>
     </div>
-  {/if}
-  <div>
-    <span class="font-bold">持續:</span>
-    <span>
-      {duration}{s.duration.roll?.numDice ?? ""}{s.duration.roll?.diceType ??
-        ""}{" " + (typeMap[s.duration.type] ?? s.duration.type)}{theS}
-    </span>
+    <div class="text-xs text-gray-500 italic">
+      {t_Class(s.class) ?? s.class}
+      {#if s.stat}
+        / {s.stat}{/if}
+    </div>
   </div>
-  <div>
-    <span class="font-bold mr-1">距離:</span><span
-      >{rangeMap[s.range] ?? s.range}</span
-    >
+
+  <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+    <div>
+      <span class="font-bold block text-xs text-gray-500">持續時間</span>
+      <span>{duration}</span>
+    </div>
+    <div>
+      <span class="font-bold block text-xs text-gray-500">施法距離</span>
+      <span>{getRangeDisplay(s.range)}</span>
+    </div>
+    {#if s.components}
+      <div class="col-span-2">
+        <span class="font-bold block text-xs text-gray-500"
+          >構材 (Components)</span
+        >
+        <span>
+          {[
+            s.components.verbal ? "V" : null,
+            s.components.somatic ? "S" : null,
+            s.components.material
+              ? `M (${s.components.materialDesc ?? ""})`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(", ")}
+        </span>
+      </div>
+    {/if}
   </div>
-  <div>{s.l10n?.desc ?? s.desc}</div>
-  <div class="flex gap-1">
+
+  <div class="text-sm leading-relaxed text-gray-800 border-t pt-2 mb-3">
+    {s.l10n?.desc ?? s.desc}
+  </div>
+
+  <div class="flex gap-2">
     {#if playerHasSpell($pc, s)}
       <button
-        class="bg-black text-white w-full p-3"
+        class="bg-red-800 text-white w-full p-2 rounded shadow hover:bg-red-900 transition-colors font-bold"
         on:click={() => unLearnSpell(s)}>遺忘</button
       >
     {:else if playerCanLearnSpell($pc, s)}
       <button
-        class="bg-black text-white w-full p-3"
+        class="bg-blue-800 text-white w-full p-2 rounded shadow hover:bg-blue-900 transition-colors font-bold"
         on:click={() => learnSpell(s)}>學習</button
       >
     {:else}
       <button
-        class="bg-gray-600 text-white w-full p-3"
-        on:click={() => learnSpell(s)}
+        class="bg-gray-400 text-white w-full p-2 rounded cursor-not-allowed"
         disabled>無法學習</button
       >
     {/if}
     {#if s.editable}
-      <button class="bg-black text-white p-3" on:click={() => deleteSpell(s)}>
-        <i class="material-icons translate-y-1">delete</i>
+      <button
+        class="bg-gray-800 text-white p-2 rounded hover:bg-black"
+        on:click={() => deleteSpell(s)}
+      >
+        <i class="material-icons text-sm">delete</i>
       </button>
       <button
-        class="bg-black text-white p-3"
+        class="bg-gray-800 text-white p-2 rounded hover:bg-black"
         on:click={() => {
           showCustomSpellEditModal = true;
         }}
       >
-        <i class="material-icons translate-y-1">edit</i>
+        <i class="material-icons text-sm">edit</i>
       </button>
     {/if}
   </div>

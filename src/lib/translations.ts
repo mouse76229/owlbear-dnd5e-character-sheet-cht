@@ -7,8 +7,6 @@ import {
     DEITIES,
     LANGUAGES,
     STATS,
-    TITLES,
-    TITLE_MAP
 } from "./constants";
 import type {
     Alignment,
@@ -26,26 +24,43 @@ import type {
 } from "./types";
 
 export const CLASS_MAP: Record<Class, string> = {
+    Barbarian: "野蠻人",
+    Bard: "吟遊詩人",
+    Cleric: "牧師",
+    Druid: "德魯伊",
     Fighter: "戰士",
-    Priest: "牧師",
+    Monk: "武僧",
+    Paladin: "聖騎士",
+    Ranger: "巡林客",
+    Rogue: "盜賊",
+    Sorcerer: "術士",
+    Warlock: "邪術師",
     Wizard: "法師",
-    Thief: "盜賊",
-    Ranger: "遊俠",
+    Artificer: "奇械師",
 };
 
 export const ANCESTRY_MAP: Record<Ancestry, string> = {
-    Elf: "精靈",
-    Human: "人類",
-    Goblin: "哥布林",
-    Halfling: "哈比人",
-    "Half-Orc": "半獸人",
+    Dragonborn: "龍裔",
     Dwarf: "矮人",
+    Elf: "精靈",
+    Gnome: "地侏",
+    "Half-Elf": "半精靈",
+    "Half-Orc": "半獸人",
+    Halfling: "哈比人",
+    Human: "人類",
+    Tiefling: "堤夫林",
 };
 
 export const ALIGNMENT_MAP: Record<Alignment, string> = {
-    Lawful: "守序",
-    Neutral: "中立",
-    Chaotic: "混沌",
+    "Lawful Good": "守序善良",
+    "Neutral Good": "中立善良",
+    "Chaotic Good": "混沌善良",
+    "Lawful Neutral": "守序中立",
+    "True Neutral": "絕對中立",
+    "Chaotic Neutral": "混沌中立",
+    "Lawful Evil": "守序邪惡",
+    "Neutral Evil": "中立邪惡",
+    "Chaotic Evil": "混沌邪惡",
 };
 
 export const STAT_MAP: Record<Stat, string> = {
@@ -58,38 +73,24 @@ export const STAT_MAP: Record<Stat, string> = {
 };
 
 export const BACKGROUND_MAP: Record<Background, string> = {
-    Urchin: "頑童",
-    Wanted: "被通緝者",
-    "Cult Initiate": "邪教信徒",
-    "Thieves' Guild": "盜賊公會",
-    Banished: "被放逐者",
-    Orphaned: "孤兒",
-    "Wizard's Apprentice": "法師學徒",
-    Jeweler: "珠寶匠",
-    Herbalist: "草藥師",
-    Barbarian: "野蠻人",
-    Mercenary: "傭兵",
-    Sailor: "水手",
     Acolyte: "侍祭",
-    Soldier: "士兵",
-    Ranger: "巡林客",
-    Scout: "斥候",
-    Minstrel: "吟遊詩人",
-    Scholar: "學者",
+    Charlatan: "騙子",
+    Criminal: "罪犯",
+    Entertainer: "藝人",
+    "Folk Hero": "平民英雄",
+    "Guild Artisan": "公會工匠",
+    Hermit: "隱士",
     Noble: "貴族",
-    Chirurgeon: "外科醫生",
+    Outlander: "異化者",
+    Sage: "賢者",
+    Sailor: "水手",
+    Soldier: "士兵",
+    Urchin: "流浪兒",
 };
 
 export const DEITY_MAP: Record<Deity, string> = {
-    "None": "無",
-    "Saint Terragnis": "聖女泰拉尼斯 (守序)",
-    "Gede": "吉德 (中立)",
-    "Madeera the Covenant": "契約者瑪迪拉 (守序)",
-    "Ord": "奧德 (中立)",
-    "Memnon": "梅姆農 (混沌)",
-    "Ramlaat": "拉姆拉特 (混沌)",
-    "Shune the Vile": "邪惡舒恩 (混沌)",
-    "The Lost": "迷失者 (無)",
+    // 5E FR Deities are too many, using defaults or just passing string
+    // Ideally we list them but for now fallback to string
 };
 
 export const LANGUAGE_MAP: Record<Language, string> = {
@@ -97,45 +98,18 @@ export const LANGUAGE_MAP: Record<Language, string> = {
     Dwarvish: "矮人語",
     Elvish: "精靈語",
     Giant: "巨人語",
+    Gnomish: "地侏語",
     Goblin: "哥布林語",
-    Merran: "梅蘭語",
-    Orcish: "獸人語",
-    Reptillian: "爬蟲語",
-    Sylvan: "森林語",
-    Thanian: "薩尼語",
+    Halfling: "哈比人語",
+    Orc: "獸人語",
+    Abyssal: "深淵語",
     Celestial: "天界語",
-    Diabolic: "煉獄語",
     Draconic: "龍語",
+    "Deep Speech": "地底語",
+    Infernal: "煉獄語",
     Primordial: "原初語",
-};
-
-// Title Map structure mirrors constants.TITLE_MAP
-export const TITLE_MAP_L10N: typeof TITLE_MAP = {
-    Fighter: {
-        Lawful: ["侍從", "騎士", "爵士", "領主", "領主/夫人"],
-        Chaotic: ["無賴", "強盜", "殺手", "掠奪者", "軍閥"],
-        Neutral: ["戰士", "蠻族", "狂戰士", "戰爭酋長", "酋長"],
-    },
-    Priest: {
-        Lawful: ["侍祭", "十字軍", "聖殿騎士", "神選者", "聖騎士"],
-        Chaotic: ["新信徒", "狂熱者", "異教徒", "天譴者", "混沌騎士"],
-        Neutral: ["探求者", "祈求者", "預兆師", "秘術師", "先知"],
-    },
-    Thief: {
-        Lawful: ["跑腿", "飛賊", "騙徒", "幹部", "老大"],
-        Chaotic: ["暴徒", "割喉客", "影子", "刺客", "幽靈"],
-        Neutral: ["強盜", "不法之徒", "流氓", "叛變者", "盜賊王/后"],
-    },
-    Wizard: {
-        Lawful: ["學徒", "咒法師", "奧術師", "法師", "大法師"],
-        Chaotic: ["熟練者", "通靈師", "巫師/術士", "魔鬼崇拜者", "術士"],
-        Neutral: ["薩滿", "預言家", "守望者", "賢者", "德魯伊"],
-    },
-    Ranger: {
-        Lawful: ["侍從", "騎士", "爵士", "領主", "領主/夫人"],
-        Chaotic: ["無賴", "強盜", "殺手", "掠奪者", "軍閥"],
-        Neutral: ["戰士", "蠻族", "狂戰士", "戰爭酋長", "酋長"],
-    },
+    Sylvan: "森林語",
+    Undercommon: "地底通用語",
 };
 
 // Helper functions
@@ -168,28 +142,6 @@ export function t_Language(l: string): string {
 }
 
 export function t_Title(t: string, c?: Class, a?: Alignment): string {
-    // Setup reverse lookup if needed or just iterate
-    // Since titles are specific to Class+Alignment in constants, we might need context.
-    // However, often we just have the string.
-
-    if (c && a && TITLE_MAP[c] && TITLE_MAP[c][a]) {
-        const idx = TITLE_MAP[c][a].indexOf(t);
-        if (idx > -1 && TITLE_MAP_L10N[c] && TITLE_MAP_L10N[c][a]) {
-            return TITLE_MAP_L10N[c][a][idx];
-        }
-    }
-
-    // Fallback: try to find it in the L10N map by brute force if context missing
-    // This might be slow but titles are few.
-    for (const cls of CLASSES) {
-        for (const align of ALIGNMENTS) {
-            const idx = TITLE_MAP[cls][align].indexOf(t);
-            if (idx > -1) {
-                return TITLE_MAP_L10N[cls][align][idx];
-            }
-        }
-    }
-
     return t;
 }
 

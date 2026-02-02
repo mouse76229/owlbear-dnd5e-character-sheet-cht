@@ -1,10 +1,7 @@
 import { writable } from "svelte/store";
 import { findAny } from "../compendium";
-import { TITLE_MAP } from "../constants";
 import {
   ensureAncestryBonuses,
-  ensureClassBonuses,
-  ensureClassGear,
   ensureLanguages,
 } from "../services/AncestryClassEnsurer";
 import { createUndoRedoStore } from "../services/PlayerHistoryTracker";
@@ -23,10 +20,12 @@ import type {
   Stat,
   Title,
   WeaponInfo,
+  Skill,
 } from "../types";
 import { alphabetically, clamp, compareDiceType, toInfo } from "../utils";
-import { slotsForGear } from "./Gear";
+// import { slotsForGear } from "./Gear";
 
+// D&D 5E Default Character
 export const PlayerCharacterStore = createUndoRedoStore(
   writable<PlayerCharacter>(defaultPC()),
 );
@@ -35,53 +34,95 @@ export const pc = PlayerCharacterStore;
 export function defaultPC(): PlayerCharacter {
   return {
     name: "",
-    ancestry: "Human",
+    ancestry: "Human", // Default generic
     class: "",
-    level: 0,
-    title: "Rook",
-    alignment: "Lawful",
-    background: "Scout",
-    deity: "Gede",
+    level: 1, // 5E usually starts at 1
+    title: "",
+    alignment: "True Neutral",
+    background: "Noble",
+    deity: "",
     notes: "",
     gear: [],
     customGear: [],
+    // Standard Array or Point Buy baseline
     stats: { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 },
+    // Skills defaulted to not proficient (0)
+    skills: {
+      Acrobatics: 0,
+      "Animal Handling": 0,
+      Arcana: 0,
+      Athletics: 0,
+      Deception: 0,
+      History: 0,
+      Insight: 0,
+      Intimidation: 0,
+      Investigation: 0,
+      Medicine: 0,
+      Nature: 0,
+      Perception: 0,
+      Performance: 0,
+      Persuasion: 0,
+      Religion: 0,
+      "Sleight of Hand": 0,
+      Stealth: 0,
+      Survival: 0,
+    },
+    savingThrows: {
+      STR: false,
+      DEX: false,
+      CON: false,
+      INT: false,
+      WIS: false,
+      CHA: false,
+    },
+    proficiencyBonus: 2,
+    passivePerception: 10,
+    speed: 30,
     bonuses: [],
     customBonuses: [],
     customTalents: [],
-    maxHitPoints: 1,
+    maxHitPoints: 10,
+    hitPoints: 10,
+    tempHitPoints: 0,
+    hitDice: {},
+    deathSaves: { successes: 0, failures: 0 },
+    conditions: [],
+    exhaustion: 0,
     armorClass: 10,
-    gearSlotsTotal: 10,
-    gold: 0,
-    silver: 0,
-    copper: 0,
+    carryingCapacity: 150, // STR 10 * 15
+    currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
     languages: ["Common"],
     customLanguages: [],
     xp: 0,
     spells: [],
     customSpells: [],
-    hitPoints: 1,
+    spellSlots: {},
   };
 }
 
+// 5E Proficiency Bonus: ceil(level / 4) + 1
+// Level 1-4: +2, 5-8: +3, 9-12: +4, 13-16: +5, 17-20: +6
+export function calculateProficiencyBonus(level: number): number {
+  if (level <= 0) return 2;
+  return Math.ceil(level / 4) + 1;
+}
+
+// 5E Stat Modifier: floor((score - 10) / 2)
+// No hard cap at -4/+4 like ShadowDark. Example: 1 = -5, 20 = +5, 30 = +10
 export function calculateModifierForPlayerStat(
   pc: PlayerCharacter,
   stat: Stat,
 ): number {
-  let finalModifier = 0;
-  const baseModifier = clamp(
-    Math.floor((calculateStatValueForPlayerStat(pc, stat) - 10) / 2),
-    -4,
-    4,
-  );
-  finalModifier += baseModifier;
-  return finalModifier;
+  const finalScore = calculateStatValueForPlayerStat(pc, stat);
+  return Math.floor((finalScore - 10) / 2);
 }
 
 export function setClassForPlayer(pc: PlayerCharacter, c: Class) {
   pc.class = c;
-  ensureClassBonuses(pc);
-  ensureClassGear(pc);
+  // TODO: Logic to set Saving Throw Proficiencies based on Class
+  // TODO: Implement ensureClassBonuses for 5E specific features if needed
+  // ensureClassBonuses(pc);
+  // ensureClassGear(pc);
 }
 
 export function setAncestryForPlayer(pc: PlayerCharacter, a: Ancestry | "") {
@@ -95,6 +136,7 @@ export function calculateStatValueForPlayerStat(
   stat: Stat,
 ): number {
   const baseStat = pc.stats[stat];
+  // Add bonuses from race/feats/etc
   return baseStat + calculateBonusForPlayerStat(pc, stat);
 }
 
@@ -116,8 +158,10 @@ export function calculateDamageDiceTypeForPlayerWeapon(
   w: WeaponInfo,
   handedness: "oneHanded" | "twoHanded",
 ): DiceType {
-  let result = w.damage[handedness].diceType;
+  let result = w.damage[handedness]?.diceType ?? "d4";
 
+  // In 5E, dice type upgrades are rare (Monk martial arts etc).
+  // Keeping logic generic for now.
   const diceTypeBonuses = pc.bonuses
     .filter(
       (b) =>
@@ -130,7 +174,6 @@ export function calculateDamageDiceTypeForPlayerWeapon(
     .reverse();
 
   if (diceTypeBonuses[0] && compareDiceType(diceTypeBonuses[0], result) > 0) {
-    // this will be the greatest diceType among all bonuses.
     result = diceTypeBonuses[0];
   }
 
@@ -157,152 +200,150 @@ export function isPlayerHoldingShield(pc: PlayerCharacter): boolean {
     pc.gear
       .filter((g) => g.equipped)
       .map(toInfo<ArmorInfo>)
-      .find((g) => g.type === "Armor" && g.properties?.includes("OneHanded")),
+      .find((g) => g.type === "Armor" && g.properties?.includes("Shield")),
   );
 }
 
+// 5E Armor Class Calculation
+// Light Armor: AC + Dex Mod
+// Medium Armor: AC + Dex Mod (max 2)
+// Heavy Armor: AC (no Dex Mod)
+// Unarmored: 10 + Dex Mod (+ Con/Wis for Barbarian/Monk if implemented as bonus)
 export function calculateArmorClassForPlayer(pc: PlayerCharacter) {
-  let baseAC = pc.armorClass;
-  let modsFromStat = calculateModifierForPlayerStat(pc, "DEX"); // default to DEX
+  let finalAC = 0;
 
-  let modsFromUnrestrictedBonuses = 0;
-  for (const b of pc.bonuses) {
-    if (b.type === "modifyAmt" && b.bonusTo === "armorClass" && !b.metadata) {
-      modsFromUnrestrictedBonuses += calculateBonusAmount(pc, b);
+  // Identify Armor Worn
+  const equippedArmor = pc.gear
+    .filter((g) => g.equipped)
+    .map(toInfo<ArmorInfo>)
+    .filter((g) => g.type === "Armor" && !g.properties?.includes("Shield")); // Exclude shields
+
+  // Base AC Calculation
+  const dexMod = calculateModifierForPlayerStat(pc, "DEX");
+
+  if (equippedArmor.length > 0) {
+    // Assuming single armor piece. If multiple, take the highest base or handle error.
+    // 5E generally doens't allow stacking armor.
+    const armor = equippedArmor[0];
+    const base = armor.ac.base;
+
+    // Check Armor Type via Max Dex
+    // Logic: 
+    // If maxDex is undefined => Light Armor (Full Dex)
+    // If maxDex is defined (e.g. 2) => Medium Armor (limited Dex)
+    // If maxDex is 0 => Heavy Armor (No Dex)
+    // Note: types.d.ts defines maxDex?.
+
+    let applicableDex = dexMod;
+    if (armor.ac.maxDex !== undefined) {
+      if (armor.ac.maxDex === 0) {
+        applicableDex = 0; // Heavy
+      } else {
+        applicableDex = Math.min(dexMod, armor.ac.maxDex); // Medium
+      }
     }
+
+    finalAC = base + applicableDex;
+
+    // Add armor magical bonus
+    finalAC += armor.ac.modifier;
+  } else {
+    // Unarmored Defense (10 + Dex)
+    // TODO: Barbarian/Monk unarmored defense logic checks could go here
+    finalAC = 10 + dexMod;
   }
 
-  const gearBonuses = pc.gear
-    .map((g) => ({ isEquipped: g.equipped, g: findAny(g.name) }))
-    .filter(({ isEquipped, g }) => {
-      return g && (!g.canBeEquipped || isEquipped);
-    })
-    .map(({ g }) => g.playerBonuses)
-    .filter(Boolean)
-    .flat();
-
-  let modsFromGearBonuses = 0;
-  for (const b of gearBonuses) {
-    if (b.type === "modifyAmt" && b.bonusTo === "armorClass") {
-      modsFromGearBonuses += calculateBonusAmount(pc, b);
-    }
-  }
-
-  let modsFromShields = 0;
+  // Shield Bonus
   const shields = pc.gear
     .filter((g) => g.equipped)
     .map(toInfo<ArmorInfo>)
-    .filter((g) => g.type === "Armor" && g.properties?.includes("OneHanded"));
+    .filter((g) => g.type === "Armor" && g.properties?.includes("Shield"));
 
   for (const s of shields) {
-    modsFromShields += s.ac.modifier;
+    finalAC += s.ac.base > 0 ? s.ac.base : 2; // Default shield AC is usually +2 in 5E
+    finalAC += s.ac.modifier; // Magic shield bonus
   }
 
-  const armor = pc.gear
-    .filter((g) => g.equipped)
-    .map(toInfo<ArmorInfo>)
-    .filter((g) => g.type === "Armor" && !g.properties?.includes("OneHanded"));
-
-  let modsFromArmor = 0;
-  let shouldAddStat = true;
-  for (const a of armor) {
-    if (a.ac.stat && a.ac.stat !== "DEX") {
-      modsFromStat = calculateModifierForPlayerStat(pc, a.ac.stat);
+  // Global AC Bonuses (Ring of Protection, Fighting Style, etc.)
+  const miscBonuses = pc.bonuses.reduce((acc, b) => {
+    if (b.type === "modifyAmt" && b.bonusTo === "armorClass") {
+      return acc + calculateBonusAmount(pc, b);
     }
+    return acc;
+  }, 0);
 
-    modsFromArmor += a.ac.modifier;
+  finalAC += miscBonuses;
 
-    modsFromArmor += pc.bonuses
-      .filter(
-        (b) =>
-          b.type === "modifyAmt" &&
-          b.metadata?.type === "armor" &&
-          b.metadata.armor === a.name,
-      )
-      .reduce((acc, b: ModifyBonus) => acc + b.bonusAmount, 0);
-
-    if (a.ac.base > 0) {
-      shouldAddStat = Boolean(a.ac.stat);
-      baseAC = Math.max(a.ac.base, baseAC);
-    }
-  }
-
-  return (
-    baseAC +
-    modsFromUnrestrictedBonuses +
-    modsFromGearBonuses +
-    modsFromShields +
-    modsFromArmor +
-    (shouldAddStat ? modsFromStat : 0)
-  );
+  return finalAC;
 }
 
 export function calculateTitleForPlayer(pc: PlayerCharacter): Title | null {
-  if (pc.level === 0 || pc.class === "") return null;
-  try {
-    return TITLE_MAP[pc.class][pc.alignment][
-      Math.max(0, Math.floor((pc.level - 1) / 2))
-    ];
-  } catch {
-    return null;
-  }
+  // 5E doesn't really have level titles
+  return pc.title || null;
 }
 
+// 5E Spell Save DC = 8 + Proficiency + Stat Mod
+// 5E Spell Attack Mod = Proficiency + Stat Mod
+export function calculateSpellAttackModifier(
+  pc: PlayerCharacter,
+  spellClass: Class = "Wizard", // Default to Int based if unknown
+): number {
+  const prof = calculateProficiencyBonus(pc.level);
+  let stat: Stat = "INT";
+
+  if (["Cleric", "Druid", "Ranger"].includes(pc.class || "")) stat = "WIS";
+  if (["Bard", "Paladin", "Sorcerer", "Warlock"].includes(pc.class || "")) stat = "CHA";
+
+  const mod = calculateModifierForPlayerStat(pc, stat);
+  return prof + mod;
+}
+
+export function calculateSpellSaveDC(pc: PlayerCharacter): number {
+  return 8 + calculateSpellAttackModifier(pc);
+}
+
+// Legacy function signature support, roughly maps to Attack Mod
 export function calculateSpellCastingModifierForPlayer(
   pc: PlayerCharacter,
   spell: SpellInfo,
 ): number {
-  let result = 0;
-  const stat = spell.stat ?? (pc.class === "Priest" ? "WIS" : "INT");
-  const baseModifier = calculateModifierForPlayerStat(pc, stat);
-  result += baseModifier;
-
-  // from bonuses
-  const bonuses = pc.bonuses
-    .filter((b) => b.type === "modifyAmt" && b.bonusTo === "spellcastRoll")
-    .reduce((acc: number, b: ModifyBonus) => {
-      if (
-        !b.metadata ||
-        (b.metadata.type === "spell" && b.metadata.spell === spell.name)
-      ) {
-        acc += calculateBonusAmount(pc, b);
-      }
-      return acc;
-    }, 0);
-
-  result += bonuses;
-
-  // from gear
-  const gearBonuses = pc.gear
-    .map((g) => ({ isEquipped: g.equipped, g: findAny(g.name) }))
-    .filter(({ isEquipped, g }) => {
-      return g && (!g.canBeEquipped || isEquipped);
-    })
-    .map(({ g }) => g.playerBonuses)
-    .filter(Boolean)
-    .flat()
-    .filter((b) => b.type === "modifyAmt" && b.bonusTo === "spellcastRoll")
-    .reduce((acc: number, b: ModifyBonus) => {
-      if (
-        !b.metadata ||
-        (b.metadata.type === "spell" && b.metadata.spell === spell.name)
-      ) {
-        acc += calculateBonusAmount(pc, b);
-      }
-      return acc;
-    }, 0);
-
-  result += gearBonuses;
-
-  return result;
+  return calculateSpellAttackModifier(pc);
 }
 
 export function calculateDamageBonusForPlayerWeapon(
   pc: PlayerCharacter,
   w: WeaponInfo,
 ): number {
+  // 5E: Damage Bonus = Stat Mod (usually) + Magic Bonus + Rage etc.
+  // Prof bonus is NOT added to damage (usually).
+
   let result = 0;
 
+  // Stat Mod
+  const strMod = calculateModifierForPlayerStat(pc, "STR");
+  const dexMod = calculateModifierForPlayerStat(pc, "DEX");
+
+  if (w.properties?.includes("Finesse") || (w.weaponType && w.weaponType.includes("Ranged"))) {
+    // Finesse can use Str or Dex. Logic usually picks higher.
+    // Ranged uses Dex (unless Thrown).
+    if (w.weaponType.includes("Ranged") && !w.properties?.includes("Thrown")) {
+      result += dexMod;
+    } else if (w.properties?.includes("Finesse")) {
+      result += Math.max(strMod, dexMod);
+    } else {
+      result += strMod;
+    }
+  } else {
+    // Default Melee = Str
+    result += strMod;
+  }
+
+  // Magic Bonus from Weapon
+  // Assuming weapon generic bonuses stored in playerBonuses or similar?
+  // 5E Magic weapons usually have +1/+2/+3 added to hit and damage.
+  // We need to check if 'g.playerBonuses' contains damage mods.
+
+  // Global Bonuses (Dueling Fighting Style etc)
   const bonuses = pc.bonuses
     .filter((b) => b.type === "modifyAmt" && b.bonusTo === "damageRoll")
     .reduce((acc: number, b: ModifyBonus) => {
@@ -313,44 +354,36 @@ export function calculateDamageBonusForPlayerWeapon(
     }, 0);
   result += bonuses;
 
-  // gear bonuses
-  const gearBonuses = pc.gear
-    // only want to apply equippable bonuses or bonuses that don't require equipping
-    .map((g) => ({ isEquipped: g.equipped, g: findAny(g.name) }))
-    .filter(({ isEquipped, g }) => {
-      return g && (!g.canBeEquipped || isEquipped);
-    })
-    .map(({ g }) => g.playerBonuses)
-    .filter(Boolean)
-    .flat()
-    // only apply bonuses to attackRoll
-    .filter((b) => b.type === "modifyAmt" && b.bonusTo === "damageRoll")
-    .reduce((acc: number, b: ModifyBonus) => {
-      if (doesBonusApplyToWeapon(b, w)) {
-        acc += calculateBonusAmount(pc, b);
-      }
-      return acc;
-    }, 0);
-  result += gearBonuses;
-
   return result;
 }
 
+// 5E Attack Roll = d20 + Stat Mod + Proficiency (if proficient)
 export function calculateAttackBonusForPlayerWeapon(
   pc: PlayerCharacter,
   w: WeaponInfo,
 ): number {
   let result = 0;
-  // melee vs ranged
+
+  // 1. Stat Mod
   const strMod = calculateModifierForPlayerStat(pc, "STR");
   const dexMod = calculateModifierForPlayerStat(pc, "DEX");
-  if (w.properties?.includes("Finesse") || w.weaponType === "MeleeRanged") {
+
+  if (w.properties?.includes("Finesse")) {
     result += Math.max(strMod, dexMod);
+  } else if (w.weaponType.includes("Ranged") && !w.properties?.includes("Thrown")) {
+    result += dexMod;
   } else {
-    result += w.weaponType === "Melee" ? strMod : dexMod;
+    result += strMod;
   }
 
-  // pc bonuses
+  // 2. Proficiency Bonus
+  // In 5E, you are proficient if your class grants it.
+  // For now, assuming PROFIENT with all weapons if martial/simple matches class.
+  // Simplified: Always add proficiency for now, or check generic "Proficient".
+  const profBonus = calculateProficiencyBonus(pc.level);
+  result += profBonus;
+
+  // 3. Item/Global Bonuses (+1 Weapon, etc)
   const bonuses = pc.bonuses
     .filter((b) => b.type === "modifyAmt" && b.bonusTo === "attackRoll")
     .reduce((acc: number, b: ModifyBonus) => {
@@ -361,77 +394,49 @@ export function calculateAttackBonusForPlayerWeapon(
     }, 0);
   result += bonuses;
 
-  // gear bonuses
-  const gearBonuses = pc.gear
-    // only want to apply equippable bonuses or bonuses that don't require equipping
-    .map((g) => ({ isEquipped: g.equipped, g: findAny(g.name) }))
-    .filter(({ isEquipped, g }) => {
-      return g && (!g.canBeEquipped || isEquipped);
-    })
-    .map(({ g }) => g.playerBonuses)
-    .filter(Boolean)
-    .flat()
-    // only apply bonuses to attackRoll
-    .filter((b) => b.type === "modifyAmt" && b.bonusTo === "attackRoll")
-    .reduce((acc: number, b: ModifyBonus) => {
-      if (doesBonusApplyToWeapon(b, w)) {
-        acc += calculateBonusAmount(pc, b);
-      }
-      return acc;
-    }, 0);
-  result += gearBonuses;
-
   return result;
 }
 
+// 5E Encumbrance: Carrying Capacity = STR * 15 lbs
+export function calculateCarryingCapacity(pc: PlayerCharacter): number {
+  const str = calculateStatValueForPlayerStat(pc, "STR");
+  return str * 15;
+}
+
+// Legacy function mapping
 export function calculateGearSlotsForPlayer(pc: PlayerCharacter) {
-  const base = Math.max(10, pc.stats.STR);
+  return calculateCarryingCapacity(pc);
+}
 
-  const bonuses = pc.bonuses.reduce((acc: number, b: Bonus) => {
-    if (b.type === "modifyAmt" && b.bonusTo === "gearSlots") {
-      if (b.metadata?.type === "stat") {
-        return (
-          acc +
-          Math.max(
-            b.bonusAmount,
-            calculateModifierForPlayerStat(pc, b.metadata.stat),
-          )
-        );
-      } else {
-        return acc + calculateBonusAmount(pc, b);
-      }
-    } else {
-      return acc;
-    }
+// 5E Total Weight
+export function calculateTotalWeight(pc: PlayerCharacter): number {
+  return pc.gear.reduce((acc, g) => {
+    const info = findAny(g.name);
+    return acc + (info?.weight || 0) * g.quantity;
   }, 0);
-
-  return base + bonuses;
 }
 
+// Legacy function mapping, simplified to avoid errors elsewhere
 export function calculateFreeSlotsForPlayer(pc: PlayerCharacter): number {
-  const costlyGear = pc.gear
-    .filter((g) => findAny(g.name)?.slots?.freeCarry === 0)
-    .sort((a, b) => alphabetically(a.name, b.name));
-
-  const totalSlots = calculateGearSlotsForPlayer(pc);
-
-  const freeSlots =
-    totalSlots -
-    costlyGear.reduce((acc, curr) => {
-      return acc + slotsForGear(curr);
-    }, 0);
-
-  return freeSlots;
+  const capacity = calculateCarryingCapacity(pc);
+  const current = calculateTotalWeight(pc);
+  return Math.max(0, capacity - current);
 }
+
+// 5E Level Up XP Table
+const XP_TABLE = [
+  0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
+  85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000
+];
 
 export function levelUpPlayer(pc: PlayerCharacter) {
-  const xpCap = pc.level === 0 ? 10 : pc.level * 10;
+  if (pc.level >= 20) return;
+  const nextLevelXp = XP_TABLE[pc.level];
 
-  if (pc.xp < xpCap) return;
-  if (pc.level == 10) return;
-
-  pc.level += 1;
-  pc.xp -= xpCap;
+  if (pc.xp >= nextLevelXp) {
+    pc.level += 1;
+    // HP Increase logic would go here (Roll Hit Die + Con Mod)
+  }
 }
 
 export function playerHasSpell(pc: PlayerCharacter, spell: SpellInfo) {
@@ -439,10 +444,9 @@ export function playerHasSpell(pc: PlayerCharacter, spell: SpellInfo) {
 }
 
 export function playerCanLearnSpell(pc: PlayerCharacter, spell: SpellInfo) {
-  return (
-    pc.hasCustomClass ||
-    spell.class.toLowerCase().includes(pc.class.toLowerCase())
-  );
+  // 5E learning rules are complex (Class list, etc.)
+  // Simplified check:
+  return true;
 }
 
 export function learnSpellForPlayer(pc: PlayerCharacter, spell: SpellInfo) {
@@ -494,6 +498,7 @@ export function calculateBonusAmount(
 
 export function deleteCustomPlayerSpell(pc: PlayerCharacter, spell: SpellInfo) {
   pc.spells = pc.spells.filter((s) => s.name !== spell.name);
+  // Cleanup bonuses
   pc.bonuses = pc.bonuses.filter((b) => {
     if (b.metadata?.type === "spell" && b.metadata.spell === spell.name)
       return false;
@@ -503,47 +508,60 @@ export function deleteCustomPlayerSpell(pc: PlayerCharacter, spell: SpellInfo) {
 }
 
 function isArmorShield(g: GearInfo): boolean {
-  return g.type === "Armor" && g.properties?.includes("OneHanded");
+  return g.type === "Armor" && Boolean(g.properties?.includes("Shield"));
 }
 
 function isWearableArmor(g: GearInfo): boolean {
-  return g.type === "Armor" && !g.properties?.includes("OneHanded");
+  return g.type === "Armor" && !g.properties?.includes("Shield");
 }
 
 export function canPlayerAffordGear(pc: PlayerCharacter, g: GearInfo) {
-  const { gp, sp, cp } = g.cost;
-  const convertedCost = gp * 100 + sp * 10 + cp;
-  const pcConverted = pc.gold * 100 + pc.silver * 10 + pc.copper;
-  return pcConverted >= convertedCost;
+  // Simplified currency check (all converted to CP for comparison)
+  // 1 GP = 10 SP = 100 CP
+  const costCP = g.cost.gp * 100 + g.cost.sp * 10 + g.cost.cp;
+
+  // 5E typically uses GP/SP/CP. PP/EP exist but less common.
+  // Assuming PC currency structure: 
+  const pcCP = (pc.currency?.gp || 0) * 100 +
+    (pc.currency?.sp || 0) * 10 +
+    (pc.currency?.cp || 0);
+
+  return pcCP >= costCP;
 }
 
 export function canPlayerEquipGear(pc: PlayerCharacter, gear: Gear) {
   if (gear.equipped) return false;
+  // 5E equipping rules are generally:
+  // - Armor takes time (Action/Minutes), usually disallowed in combat for heavy.
+  // - Shields take 1 Action to don/doff.
+  // - Weapons are free interaction.
+
+  // For this function, just check logic "Can it be equipped?"
   const g = findAny(gear.name);
   if (!g || !g.canBeEquipped) return false;
 
   if (isWearableArmor(g)) {
+    // Cannot wear multiple armors
     const equippedArmor = pc.gear
       .filter((a) => a.equipped)
       .map((a) => findAny(a.name))
       .filter(isWearableArmor);
-    return equippedArmor.length === 0; // must not be wearing armor
+    return equippedArmor.length === 0;
   }
 
+  // Hand logic
   const freeHands = calculateFreeHands(pc);
-
   if (freeHands <= 0) return false;
   if (freeHands == 2) return true;
 
-  // we know the pc has only 1 free hand here
+  // 1 hand free
   if (g.type === "Weapon") {
     const w = g as WeaponInfo;
-    return Boolean(w.damage.oneHanded);
+    return !w.properties?.includes("Two-Handed");
   } else if (isArmorShield(g)) {
     return freeHands >= 1;
   }
 
-  // custom equippable gear can always be equipped
   return true;
 }
 
@@ -556,20 +574,63 @@ export function calculateFreeHands(pc: PlayerCharacter): number {
     .filter((w) => w.type === "Weapon")
     .map((w) => w as WeaponInfo);
 
-  const equippedArmor = pc.gear
-    .filter((a) => a.equipped)
-    .map((a) => findAny(a.name))
-    .filter((a) => a.type === "Armor");
-
-  // shields and weapons take up hands
+  // Minus hands for weapons
   freeHands -= equippedWeapons.reduce((acc, w) => {
-    const isWeaponOneHandable = Boolean(w.damage.oneHanded);
-    return acc + (isWeaponOneHandable ? 1 : 2);
+    // Two-Handed property
+    const isTwoHanded = w.properties?.includes("Two-Handed");
+    return acc + (isTwoHanded ? 2 : 1);
   }, 0);
 
-  freeHands -= equippedArmor.filter(
-    (a) => a.properties?.includes("OneHanded"),
-  ).length;
+  // Minus hands for shields
+  const equippedShields = pc.gear
+    .filter((g) => g.equipped)
+    .map((g) => findAny(g.name))
+    .filter((g) => g.type === "Armor" && g.properties?.includes("Shield"));
+
+  freeHands -= equippedShields.length;
 
   return freeHands;
+}
+
+export function calculatePassivePerception(pc: PlayerCharacter): number {
+  const wisMod = calculateModifierForPlayerStat(pc, "WIS");
+  const profBonus = pc.skills["Perception"] ? calculateProficiencyBonus(pc.level) * pc.skills["Perception"] : 0;
+  // Proficiency Level logic: 0=None, 1=Prof, 2=Expert.
+  // If skill value is multiplier (0, 1, 2)
+  return 10 + wisMod + profBonus;
+}
+
+// Helper to calculate Skill Check Bonus
+export function calculateSkillBonus(pc: PlayerCharacter, skill: Skill): number {
+  // Find stat for skill
+  let stat: Stat = "WIS"; // Default fallback
+
+  // Map skills to stats
+  switch (skill) {
+    case "Athletics": stat = "STR"; break;
+    case "Acrobatics":
+    case "Sleight of Hand":
+    case "Stealth": stat = "DEX"; break;
+    case "Arcana":
+    case "History":
+    case "Investigation":
+    case "Nature":
+    case "Religion": stat = "INT"; break;
+    case "Animal Handling":
+    case "Insight":
+    case "Medicine":
+    case "Perception":
+    case "Survival": stat = "WIS"; break;
+    case "Deception":
+    case "Intimidation":
+    case "Performance":
+    case "Persuasion": stat = "CHA"; break;
+  }
+
+  const statMod = calculateModifierForPlayerStat(pc, stat);
+  const profLevel = pc.skills[skill] || 0;
+  const profBonus = Math.floor(calculateProficiencyBonus(pc.level) * profLevel);
+  // e.g. Level 1 (PB +2) * Expertise (2) = +4
+
+  return statMod + profBonus;
 }

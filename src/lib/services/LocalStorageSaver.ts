@@ -3,7 +3,6 @@ import { PlayerCharacterStore } from "../model/PlayerCharacter";
 import { defaultPC } from "../model/PlayerCharacter";
 import { debounce } from "../utils";
 import { CurrentSaveSlot, NUM_SLOTS } from "./SaveSlotTracker";
-import { maintainBackwardsCompat as maintainBackwardsCompatPlayer } from "./JSONImporter";
 import type { PlayerCharacter } from "../types";
 
 export const isSaveInProgress = writable(false);
@@ -71,7 +70,6 @@ export async function loadPlayerFromLocalStorage(
   const pcJson = await asyncLocalStorage.getItem(getStorageKey(saveSlot));
   if (!pcJson) return defaultPC();
   const pc = JSON.parse(pcJson) as PlayerCharacter;
-  maintainBackwardsCompatPlayer(pc);
   return pc;
 }
 

@@ -3,154 +3,179 @@ import type { Class } from "./types";
 export const GEAR_TYPES = ["Basic", "Armor", "Weapon"] as const;
 export const SHIELD_PROPERTIES = [
   "Shield",
-  "OneHanded",
-  "TwoHanded",
+  "+1",
+  "+2",
+  "+3",
   "Magic",
 ] as const;
-export const RANGE_TYPES = ["Self", "Close", "Near", "Far"] as const;
-export const DICE_TYPES = ["d4", "d6", "d8", "d10", "d12", "d20"] as const;
+export const RANGE_TYPES = [
+  "Self",
+  "Touch",
+  "5 ft",
+  "10 ft",
+  "30 ft",
+  "60 ft",
+  "120 ft",
+  "Sight",
+] as const;
+export const DICE_TYPES = ["d4", "d6", "d8", "d10", "d12", "d20", "d100"] as const;
 export const SCHEMA_VERSION = "1.0.0";
-export const SCHEMA_TYPE = "sd-char-sheet";
+export const SCHEMA_TYPE = "dnd5e-char-sheet";
 export const STATS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
-export const ALIGNMENTS = ["Neutral", "Lawful", "Chaotic"] as const;
-export const WEAPON_TYPES = ["Melee", "Ranged", "MeleeRanged"] as const;
+
+export const ALIGNMENTS = [
+  "Lawful Good",
+  "Neutral Good",
+  "Chaotic Good",
+  "Lawful Neutral",
+  "True Neutral",
+  "Chaotic Neutral",
+  "Lawful Evil",
+  "Neutral Evil",
+  "Chaotic Evil",
+] as const;
+
+export const WEAPON_TYPES = [
+  "Simple Melee",
+  "Simple Ranged",
+  "Martial Melee",
+  "Martial Ranged",
+] as const;
+
 export const WEAPON_PROPERTIES = [
+  "Ammunition",
   "Finesse",
+  "Heavy",
+  "Light",
   "Loading",
+  "Range",
+  "Reach",
+  "Special",
   "Thrown",
+  "Two-Handed",
   "Versatile",
-  "Magic",
+  "Silvered",
+  "Magical",
 ] as const;
 
 export const TIME_UNITS = [
-  "Second",
-  "Minute",
+  "Action",
+  "Bonus Action",
+  "Reaction",
   "Round",
+  "Minute",
   "Hour",
   "Day",
-  "Week",
-  "Month",
-  "Year",
 ] as const;
 
 export const NUMERICAL_BONUS_TOS = [
-  "gearSlots",
-  "stat",
   "armorClass",
-  "backstabDice",
   "hp",
+  "proficiencyBonus",
+  "speed",
+  "initiative",
+  "passivePerception",
+  "stat",
+  "skill",
 ] as const;
 
 export const ROLL_BONUS_TOS = [
-  "hpRoll",
   "attackRoll",
-  "spellcastRoll",
   "damageRoll",
-  "statRoll",
+  "savingThrow",
+  "skillCheck",
+  "abilityCheck",
   "initiativeRoll",
-  "talentRoll",
 ] as const;
 
 export const BONUS_TOS = [...NUMERICAL_BONUS_TOS, ...ROLL_BONUS_TOS] as const;
 
 export const DEITIES = [
-  "None",
-  "Saint Terragnis",
-  "Gede",
-  "Madeera the Covenant",
-  "Ord",
-  "Memnon",
-  "Ramlaat",
-  "Shune the Vile",
-  "The Lost",
+  "Auril",
+  "Azuth",
+  "Bane",
+  "Beshaba",
+  "Bhaal",
+  "Chauntea",
+  "Cyric",
+  "Deneir",
+  "Eldath",
+  "Gond",
+  "Helm",
+  "Ilmater",
+  "Kelemvor",
+  "Lathander",
+  "Leira",
+  "Lliira",
+  "Loviatar",
+  "Malar",
+  "Mask",
+  "Mielikki",
+  "Milil",
+  "Myrkul",
+  "Mystra",
+  "Oghma",
+  "Savras",
+  "Selûne",
+  "Shar",
+  "Silvanus",
+  "Sune",
+  "Talona",
+  "Talos",
+  "Tempus",
+  "Torm",
+  "Tymora",
+  "Tyr",
+  "Umberlee",
+  "Waukeen",
 ] as const;
 
 export const BACKGROUNDS = [
-  "Urchin",
-  "Wanted",
-  "Cult Initiate",
-  "Thieves' Guild",
-  "Banished",
-  "Orphaned",
-  "Wizard's Apprentice",
-  "Jeweler",
-  "Herbalist",
-  "Barbarian",
-  "Mercenary",
-  "Sailor",
   "Acolyte",
-  "Soldier",
-  "Ranger",
-  "Scout",
-  "Minstrel",
-  "Scholar",
+  "Charlatan",
+  "Criminal",
+  "Entertainer",
+  "Folk Hero",
+  "Guild Artisan",
+  "Hermit",
   "Noble",
-  "Chirurgeon",
+  "Outlander",
+  "Sage",
+  "Sailor",
+  "Soldier",
+  "Urchin",
 ] as const;
 
 export const CLASSES = [
+  "Barbarian",
+  "Bard",
+  "Cleric",
+  "Druid",
   "Fighter",
-  "Priest",
-  "Wizard",
-  "Thief",
+  "Monk",
+  "Paladin",
   "Ranger",
+  "Rogue",
+  "Sorcerer",
+  "Warlock",
+  "Wizard",
+  "Artificer",
 ] as const;
 
-export const TITLE_MAP: {
-  [key in Class]: {
-    [key in "Lawful" | "Neutral" | "Chaotic"]: readonly string[];
-  };
-} = {
-  Fighter: {
-    Lawful: ["Squire", "Cavalier", "Knight", "Thane", "Lord/Lady"],
-    Chaotic: ["Knave", "Bandit", "Slayer", "Reaver", "Warlord"],
-    Neutral: ["Warrior", "Bararian", "Battlerager", "Warchief", "Chieftain"],
-  },
-  Priest: {
-    Lawful: ["Acolyte", "Crusader", "Templar", "Champion", "Paladin"],
-    Chaotic: ["Initiate", "Zealot", "Cultist", "Scourge", "Chaos Knight"],
-    Neutral: ["Seeker", "Invoker", "Haruspex", "Mystic", "Oracle"],
-  },
-  Thief: {
-    Lawful: ["Footpad", "Burglar", "Rook", "Underboss", "Boss"],
-    Chaotic: ["Thug", "Cutthroat", "Shadow", "Assassin", "Wraith"],
-    Neutral: ["Robber", "Outlaw", "Rogue", "Renegade", "Bandit King/Queen"],
-  },
-  Wizard: {
-    Lawful: ["Apprentice", "Conjurer", "Arcanist", "Mage", "Archmage"],
-    Chaotic: ["Adept", "Channeler", "Witch/Warlock", "Diabolist", "Sorcerer"],
-    Neutral: ["Shaman", "Seer", "Warden", "sage", "Druid"],
-  },
-  // TODO Ranger Titles
-  Ranger: {
-    Lawful: ["Squire", "Cavalier", "Knight", "Thane", "Lord/Lady"],
-    Chaotic: ["Knave", "Bandit", "Slayer", "Reaver", "Warlord"],
-    Neutral: ["Warrior", "Bararian", "Battlerager", "Warchief", "Chieftain"],
-  },
-} as const;
-
-export const TITLES = [
-  ...TITLE_MAP["Fighter"]["Lawful"],
-  ...TITLE_MAP["Fighter"]["Chaotic"],
-  ...TITLE_MAP["Fighter"]["Neutral"],
-  ...TITLE_MAP["Wizard"]["Lawful"],
-  ...TITLE_MAP["Wizard"]["Chaotic"],
-  ...TITLE_MAP["Wizard"]["Neutral"],
-  ...TITLE_MAP["Thief"]["Lawful"],
-  ...TITLE_MAP["Thief"]["Chaotic"],
-  ...TITLE_MAP["Thief"]["Neutral"],
-  ...TITLE_MAP["Priest"]["Lawful"],
-  ...TITLE_MAP["Priest"]["Chaotic"],
-  ...TITLE_MAP["Priest"]["Neutral"],
-] as const;
+// Titles are less structured in 5E, using a generic list or removing checking
+// Keeping a simplified list for compatibility if needed, but ideally we remove the map logic
+export const TITLES = [] as const;
 
 export const ANCESTRIES = [
-  "Elf",
-  "Human",
-  "Goblin",
-  "Halfling",
-  "Half-Orc",
+  "Dragonborn",
   "Dwarf",
+  "Elf",
+  "Gnome",
+  "Half-Elf",
+  "Half-Orc",
+  "Halfling",
+  "Human",
+  "Tiefling",
 ] as const;
 
 export const LANGUAGES = [
@@ -158,16 +183,66 @@ export const LANGUAGES = [
   "Dwarvish",
   "Elvish",
   "Giant",
+  "Gnomish",
   "Goblin",
-  "Merran",
-  "Orcish",
-  "Reptillian",
-  "Sylvan",
-  "Thanian",
+  "Halfling",
+  "Orc",
+  "Abyssal",
   "Celestial",
-  "Diabolic",
   "Draconic",
+  "Deep Speech",
+  "Infernal",
   "Primordial",
+  "Sylvan",
+  "Undercommon",
+] as const;
+
+export const SKILLS = [
+  "Acrobatics",
+  "Animal Handling",
+  "Arcana",
+  "Athletics",
+  "Deception",
+  "History",
+  "Insight",
+  "Intimidation",
+  "Investigation",
+  "Medicine",
+  "Nature",
+  "Perception",
+  "Performance",
+  "Persuasion",
+  "Religion",
+  "Sleight of Hand",
+  "Stealth",
+  "Survival",
+] as const;
+
+export const CONDITIONS = [
+  "Blinded",
+  "Charmed",
+  "Deafened",
+  "Frightened",
+  "Grappled",
+  "Incapacitated",
+  "Invisible",
+  "Paralyzed",
+  "Petrified",
+  "Poisoned",
+  "Prone",
+  "Restrained",
+  "Stunned",
+  "Unconscious",
+  "Exhaustion",
+] as const;
+
+export const SIZES = [
+  "Tiny",
+  "Small",
+  "Medium",
+  "Large",
+  "Huge",
+  "Gargantuan",
 ] as const;
 
 export const ValueForDiceType = {
@@ -177,4 +252,5 @@ export const ValueForDiceType = {
   d10: 10,
   d12: 12,
   d20: 20,
+  d100: 100,
 } as const;
