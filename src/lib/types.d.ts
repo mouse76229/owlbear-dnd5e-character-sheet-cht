@@ -150,7 +150,7 @@ export type PlayerCharacter = {
   };
   conditions: string[]; // List of active condition names
   exhaustion: number; // 0-6 level
-  armorClass: number;
+  armorClass: number; // Misc AC bonus (e.g., from magic items not in gear, special abilities)
 
   // Equipment
   gear: Gear[];

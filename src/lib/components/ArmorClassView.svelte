@@ -22,12 +22,16 @@
 >
   {ac}
 </div>
-<div class="flex items-center">
-  <span class="text-sm">基礎 AC: {$pc.armorClass}</span>
-  <button on:click={decrAC}>
-    <i class="material-icons">remove</i>
-  </button>
-  <button on:click={incrAC}>
-    <i class="material-icons">add</i>
-  </button>
+<div class="flex items-center justify-between w-full">
+  <span class="text-sm">
+    雜項加值: {$pc.armorClass >= 0 ? "+" : ""}{$pc.armorClass}
+  </span>
+  <div class="flex">
+    <button on:click={decrAC} class="hover:bg-gray-200 rounded">
+      <i class="material-icons">remove</i>
+    </button>
+    <button on:click={incrAC} class="hover:bg-gray-200 rounded">
+      <i class="material-icons">add</i>
+    </button>
+  </div>
 </div>

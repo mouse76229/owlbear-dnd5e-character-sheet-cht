@@ -1,12 +1,18 @@
 import type { PlayerCharacter } from "../types";
+import { ensurePlayerCharacterIntegrity } from "../model/PlayerCharacter";
 
 export function importFromJson(jsonStr: string): PlayerCharacter {
-  const json = JSON.parse(jsonStr);
-  // TODO: Implement 5E specific import logic.
-  // For now, we assume the JSON matches the new 5E structure or we return it as is if it matches.
-  return json as PlayerCharacter;
+  try {
+    const json = JSON.parse(jsonStr);
+    // Validate and ensure all required fields exist with proper defaults
+    return ensurePlayerCharacterIntegrity(json);
+  } catch (e) {
+    console.error("Failed to import character JSON:", e);
+    // Return a default character if import fails
+    return ensurePlayerCharacterIntegrity(null);
+  }
 }
 
 export function exportToJson(pc: PlayerCharacter): string {
-  return JSON.stringify(pc);
+  return JSON.stringify(pc, null, 2);
 }

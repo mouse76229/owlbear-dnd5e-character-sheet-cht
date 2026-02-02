@@ -88,7 +88,7 @@ export function defaultPC(): PlayerCharacter {
     deathSaves: { successes: 0, failures: 0 },
     conditions: [],
     exhaustion: 0,
-    armorClass: 10,
+    armorClass: 0, // Misc AC bonus, not base AC
     carryingCapacity: 150, // STR 10 * 15
     currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
     languages: ["Common"],
@@ -129,7 +129,8 @@ export function ensurePlayerCharacterIntegrity(pc: Partial<PlayerCharacter> | nu
 
     // Primitives that might be missing in old saves
     proficiencyBonus: pc.proficiencyBonus ?? def.proficiencyBonus,
-    armorClass: pc.armorClass ?? def.armorClass,
+    // Migrate old armorClass (was base AC=10) to new meaning (misc bonus=0)
+    armorClass: pc.armorClass === 10 ? 0 : (pc.armorClass ?? def.armorClass),
     maxHitPoints: pc.maxHitPoints ?? def.maxHitPoints,
     hitPoints: pc.hitPoints ?? def.hitPoints,
   };
@@ -331,11 +332,8 @@ export function calculateArmorClassForPlayer(pc: PlayerCharacter) {
 
   finalAC += miscBonuses;
 
-  // Add Manual Bonus (pc.armorClass - 10)
-  // Assuming 10 is the base for everyone, any deviation in pc.armorClass is treated as a manual modifier
-  if (pc.armorClass !== 10) {
-    finalAC += (pc.armorClass - 10);
-  }
+  // Add Misc AC Bonus (manual adjustment for things like magic items not tracked in gear)
+  finalAC += pc.armorClass;
 
   return finalAC;
 }
@@ -496,20 +494,48 @@ export function calculateFreeSlotsForPlayer(pc: PlayerCharacter): number {
   return Math.max(0, capacity - current);
 }
 
-// 5E Level Up XP Table
-const XP_TABLE = [
-  0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
-  85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000
+// 5E Level Up XP Table (index = current level, value = XP needed for next level)
+// Level 1->2: 300 XP, Level 2->3: 900 XP, etc.
+export const XP_TABLE = [
+  0,      // Level 0 (not used)
+  300,    // Level 1 -> 2
+  900,    // Level 2 -> 3
+  2700,   // Level 3 -> 4
+  6500,   // Level 4 -> 5
+  14000,  // Level 5 -> 6
+  23000,  // Level 6 -> 7
+  34000,  // Level 7 -> 8
+  48000,  // Level 8 -> 9
+  64000,  // Level 9 -> 10
+  85000,  // Level 10 -> 11
+  100000, // Level 11 -> 12
+  120000, // Level 12 -> 13
+  140000, // Level 13 -> 14
+  165000, // Level 14 -> 15
+  195000, // Level 15 -> 16
+  225000, // Level 16 -> 17
+  265000, // Level 17 -> 18
+  305000, // Level 18 -> 19
+  355000, // Level 19 -> 20
 ];
 
-export function levelUpPlayer(pc: PlayerCharacter) {
-  if (pc.level >= 20) return;
-  const nextLevelXp = XP_TABLE[pc.level];
+export const MAX_LEVEL = 20;
 
-  if (pc.xp >= nextLevelXp) {
-    pc.level += 1;
-    // HP Increase logic would go here (Roll Hit Die + Con Mod)
-  }
+export function getXpForNextLevel(level: number): number {
+  if (level >= MAX_LEVEL || level < 1) return 0;
+  return XP_TABLE[level];
+}
+
+export function canLevelUp(pc: PlayerCharacter): boolean {
+  if (pc.level >= MAX_LEVEL) return false;
+  return pc.xp >= getXpForNextLevel(pc.level);
+}
+
+export function levelUpPlayer(pc: PlayerCharacter) {
+  if (!canLevelUp(pc)) return;
+  pc.level += 1;
+  // Note: HP Increase logic would typically go here (Roll Hit Die + Con Mod)
+  // For now, player manually adjusts maxHitPoints
 }
 
 export function playerHasSpell(pc: PlayerCharacter, spell: SpellInfo) {

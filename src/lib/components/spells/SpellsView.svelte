@@ -9,6 +9,7 @@
   import RollButton from "../RollButton.svelte";
   import SpellsButton from "./SpellsButton.svelte";
   import SpellInfoButton from "./SpellInfoButton.svelte";
+  import SpellSlotsView from "./SpellSlotsView.svelte";
   import type { SpellInfo } from "../../types";
 
   $: spells = $pc.spells.map((s) => findSpell(s.name)).filter(Boolean);
@@ -34,6 +35,9 @@
       <span class="text-xl font-bold">{saveDC}</span>
     </div>
   </div>
+
+  <!-- Spell Slots -->
+  <SpellSlotsView />
 
   {#if hasSpells}
     <ul class="flex flex-col gap-1">

@@ -1,10 +1,10 @@
 {
-  "name": "ShadowDark 角色卡",
-  "version": "1.0.1",
+  "name": "D&D 5E 角色卡",
+  "version": "1.0.2",
   "icon": "/owlbear-shadowdark-character-sheet_CHT/icon.png",
   "manifest_version": 1,
   "action": {
-    "title": "SD 角色卡",
+    "title": "D&D 5E 角色卡",
     "icon": "/owlbear-shadowdark-character-sheet_CHT/icon.png",
     "popover": "/owlbear-shadowdark-character-sheet_CHT/index.html",
     "height": 720,

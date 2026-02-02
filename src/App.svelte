@@ -2,6 +2,9 @@
   import {
     calculateTitleForPlayer,
     levelUpPlayer,
+    canLevelUp,
+    getXpForNextLevel,
+    MAX_LEVEL,
     PlayerCharacterStore as pc,
   } from "./lib/model/PlayerCharacter";
   import { ALIGNMENTS } from "./lib/constants";
@@ -23,6 +26,8 @@
   import * as LocalStorageSaver from "./lib/services/LocalStorageSaver";
   import OBR from "@owlbear-rodeo/sdk";
   import AncestryView from "./lib/components/AncestryView.svelte";
+  import DeathSavesView from "./lib/components/DeathSavesView.svelte";
+  import ConditionsView from "./lib/components/ConditionsView.svelte";
   import { isSaveInProgress } from "./lib/services/LocalStorageSaver";
   import NotificationsButton from "./lib/components/NotificationsButton.svelte";
   import { initSettings } from "./lib/services/SettingsTracker";
@@ -42,8 +47,10 @@
   $: setCustomGearForPlayer($pc);
   $: autoTitle = calculateTitleForPlayer($pc);
 
-  $: xpCap = $pc.level === 0 ? 10 : $pc.level * 10;
-  $: canLevel = $pc.level < 10 && $pc.xp >= xpCap;
+  // D&D 5E XP system
+  $: xpForNextLevel = getXpForNextLevel($pc.level);
+  $: isMaxLevel = $pc.level >= MAX_LEVEL;
+  $: canLevel = canLevelUp($pc);
   const { canUndo, canRedo } = pc;
 
   let files: FileList;
@@ -81,7 +88,7 @@
           <div class="flex gap-1 justify-around">
             <div class="flex flex-col items-center">
               <div class="flex items-center gap-1">
-                <h1 class="">Shadowdark</h1>
+                <h1 class="">D&D 5E</h1>
                 <InfoButton />
               </div>
               {#if $isSaveInProgress}
@@ -150,7 +157,8 @@
         </div>
       </div>
       <div
-        class="flex-[2] min-w-[257px] h-[700px] grid grid-rows-8 grid-cols-2 gap-2"
+        class="flex-[2] min-w-[257px] h-[700px] grid grid-cols-2 gap-2"
+        style="grid-template-rows: auto auto auto auto auto auto auto auto auto auto;"
       >
         <div class="col-span-full cell">
           <label>
@@ -171,7 +179,7 @@
               type="number"
               inputmode="numeric"
               bind:value={$pc.level}
-              max="10"
+              max={MAX_LEVEL}
               min="1"
             />
           </label>
@@ -179,33 +187,37 @@
         <div class="cell">
           <h2>經驗值</h2>
           <label for="xp" />
-          <div class="sheet-stat flex gap-1">
-            {#if $pc.level < 10}
-              <input
-                id="xp"
-                type="number"
-                inputmode="numeric"
-                min="0"
-                bind:value={$pc.xp}
-              />
-              /
-              <div>{xpCap}</div>
+          <div class="sheet-stat flex flex-col gap-1">
+            {#if !isMaxLevel}
+              <div class="flex gap-1 items-center">
+                <input
+                  id="xp"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  bind:value={$pc.xp}
+                  class="w-20"
+                />
+                <span class="text-sm text-gray-600">
+                  / {xpForNextLevel.toLocaleString()}
+                </span>
+                <button
+                  class="text-2xl"
+                  class:opacity-20={!canLevel}
+                  disabled={!canLevel}
+                  title="升級"
+                  on:click={() => {
+                    levelUpPlayer($pc);
+                    $pc = $pc;
+                  }}>🆙</button
+                >
+              </div>
             {:else}
-              最高等級
+              <div class="text-sm text-gray-600">最高等級</div>
             {/if}
-            <button
-              class="text-2xl"
-              class:opacity-20={!canLevel}
-              disabled={!canLevel}
-              on:click={() => {
-                levelUpPlayer($pc);
-                $pc = $pc;
-              }}>🆙</button
-            >
           </div>
         </div>
         <div class="col-span-full cell">
-          <h2>稱號</h2>
           <h2>稱號</h2>
           <input type="text" bind:value={$pc.title} placeholder={autoTitle} />
           <div class="text-xs text-gray-500 mt-1">
@@ -230,6 +242,12 @@
         <div class="col-span-full cell">
           <h2>神祇</h2>
           <input bind:value={$pc.deity} />
+        </div>
+        <div class="col-span-full cell overflow-y-auto">
+          <DeathSavesView />
+        </div>
+        <div class="col-span-full cell overflow-y-auto">
+          <ConditionsView />
         </div>
       </div>
       <div
