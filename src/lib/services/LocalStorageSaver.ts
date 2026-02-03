@@ -63,6 +63,22 @@ export async function saveSaveSlot(slot: number) {
   asyncLocalStorage.setItem("sd-character-sheet-chosen-slot", `${slot}`);
 }
 
+/**
+ * Detects if the saved data is from ShadowDark format (incompatible)
+ */
+function isShadowDarkFormat(json: any): boolean {
+  if (!json || typeof json !== 'object') return false;
+
+  // ShadowDark specific indicators
+  const shadowDarkIndicators = [
+    json.stats && typeof json.stats.STR === 'object',
+    Array.isArray(json.talents) && json.talents.length > 0 && !json.skills,
+    json.luck !== undefined,
+  ];
+
+  return shadowDarkIndicators.some(Boolean);
+}
+
 export async function loadPlayerFromLocalStorage(
   saveSlot: number,
 ): Promise<PlayerCharacter> {
@@ -71,6 +87,18 @@ export async function loadPlayerFromLocalStorage(
   if (!pcJson) return defaultPC();
   try {
     const parsed = JSON.parse(pcJson);
+
+    // Check for ShadowDark format and warn user
+    if (isShadowDarkFormat(parsed)) {
+      console.warn("Detected ShadowDark format in save slot, resetting to default");
+      // Clear the incompatible save
+      await asyncLocalStorage.removeItem(getStorageKey(saveSlot));
+      if (typeof window !== 'undefined') {
+        alert(`存檔欄位 ${saveSlot} 包含不兼容的 ShadowDark 格式資料，已重置為預設角色。\n\nSave slot ${saveSlot} contained incompatible ShadowDark format data and has been reset.`);
+      }
+      return defaultPC();
+    }
+
     return ensurePlayerCharacterIntegrity(parsed);
   } catch (e) {
     console.warn("Failed to parse save, resetting slot", e);

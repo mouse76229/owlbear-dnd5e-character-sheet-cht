@@ -102,38 +102,152 @@ export function defaultPC(): PlayerCharacter {
 
 export function ensurePlayerCharacterIntegrity(pc: Partial<PlayerCharacter> | null | undefined): PlayerCharacter {
   const def = defaultPC();
-  if (!pc) return def;
+  if (!pc || typeof pc !== 'object') return def;
 
-  // Deep merge for critical nested objects to avoid undefined errors
-  return {
-    ...def,
-    ...pc,
-    stats: { ...def.stats, ...(pc.stats || {}) },
-    skills: { ...def.skills, ...(pc.skills || {}) },
-    savingThrows: { ...def.savingThrows, ...(pc.savingThrows || {}) },
-    currency: { ...def.currency, ...(pc.currency || {}) },
-    hitDice: { ...def.hitDice, ...(pc.hitDice || {}) },
-    deathSaves: { ...def.deathSaves, ...(pc.deathSaves || {}) },
+  try {
+    // Helper to safely get number value
+    const safeNumber = (val: any, fallback: number, min?: number, max?: number): number => {
+      const num = Number(val);
+      if (isNaN(num)) return fallback;
+      let result = num;
+      if (min !== undefined) result = Math.max(min, result);
+      if (max !== undefined) result = Math.min(max, result);
+      return result;
+    };
 
-    // Arrays: Fallback to empty if undefined, but keep existing arrays
-    gear: Array.isArray(pc.gear) ? pc.gear : [],
-    customGear: Array.isArray(pc.customGear) ? pc.customGear : [],
-    spells: Array.isArray(pc.spells) ? pc.spells : [],
-    customSpells: Array.isArray(pc.customSpells) ? pc.customSpells : [],
-    bonuses: Array.isArray(pc.bonuses) ? pc.bonuses : [],
-    customBonuses: Array.isArray(pc.customBonuses) ? pc.customBonuses : [],
-    customTalents: Array.isArray(pc.customTalents) ? pc.customTalents : [],
-    conditions: Array.isArray(pc.conditions) ? pc.conditions : [],
-    languages: Array.isArray(pc.languages) ? pc.languages : [],
-    customLanguages: Array.isArray(pc.customLanguages) ? pc.customLanguages : [],
+    // Helper to safely get string value
+    const safeString = (val: any, fallback: string): string => {
+      if (typeof val === 'string') return val;
+      if (val === null || val === undefined) return fallback;
+      return String(val);
+    };
 
-    // Primitives that might be missing in old saves
-    proficiencyBonus: pc.proficiencyBonus ?? def.proficiencyBonus,
-    // Migrate old armorClass (was base AC=10) to new meaning (misc bonus=0)
-    armorClass: pc.armorClass === 10 ? 0 : (pc.armorClass ?? def.armorClass),
-    maxHitPoints: pc.maxHitPoints ?? def.maxHitPoints,
-    hitPoints: pc.hitPoints ?? def.hitPoints,
-  };
+    // Helper to safely get array
+    const safeArray = <T>(val: any, fallback: T[]): T[] => {
+      return Array.isArray(val) ? val : fallback;
+    };
+
+    // Helper to safely merge stats (handles both 5E numbers and ShadowDark objects)
+    const safeStats = (stats: any): typeof def.stats => {
+      const result = { ...def.stats };
+      if (!stats || typeof stats !== 'object') return result;
+
+      for (const stat of ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const) {
+        const val = stats[stat];
+        if (typeof val === 'number') {
+          result[stat] = safeNumber(val, 10, 1, 30);
+        } else if (typeof val === 'object' && val !== null) {
+          // Handle ShadowDark format: { base: number, bonus: number }
+          const base = safeNumber(val.base, 10, 1, 30);
+          const bonus = safeNumber(val.bonus, 0);
+          result[stat] = Math.max(1, Math.min(30, base + bonus));
+        }
+      }
+      return result;
+    };
+
+    // Helper to safely merge skills
+    const safeSkills = (skills: any): typeof def.skills => {
+      const result = { ...def.skills };
+      if (!skills || typeof skills !== 'object') return result;
+
+      for (const skill of Object.keys(def.skills) as (keyof typeof def.skills)[]) {
+        const val = skills[skill];
+        if (typeof val === 'number') {
+          result[skill] = safeNumber(val, 0, 0, 2);
+        } else if (typeof val === 'boolean') {
+          result[skill] = val ? 1 : 0;
+        }
+      }
+      return result;
+    };
+
+    // Helper to safely merge saving throws
+    const safeSavingThrows = (throws: any): typeof def.savingThrows => {
+      const result = { ...def.savingThrows };
+      if (!throws || typeof throws !== 'object') return result;
+
+      for (const stat of ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const) {
+        if (throws[stat] !== undefined) {
+          result[stat] = Boolean(throws[stat]);
+        }
+      }
+      return result;
+    };
+
+    // Helper to safely merge currency
+    const safeCurrency = (currency: any): typeof def.currency => {
+      const result = { ...def.currency };
+      if (!currency || typeof currency !== 'object') return result;
+
+      for (const coin of ['cp', 'sp', 'ep', 'gp', 'pp'] as const) {
+        if (currency[coin] !== undefined) {
+          result[coin] = safeNumber(currency[coin], 0, 0);
+        }
+      }
+      return result;
+    };
+
+    // Helper to safely merge death saves
+    const safeDeathSaves = (saves: any): typeof def.deathSaves => {
+      const result = { ...def.deathSaves };
+      if (!saves || typeof saves !== 'object') return result;
+
+      result.successes = safeNumber(saves.successes, 0, 0, 3);
+      result.failures = safeNumber(saves.failures, 0, 0, 3);
+      return result;
+    };
+
+    // Deep merge for critical nested objects to avoid undefined errors
+    return {
+      // String fields
+      name: safeString(pc.name, def.name),
+      ancestry: safeString(pc.ancestry, def.ancestry) as any,
+      class: safeString(pc.class, def.class) as any,
+      title: safeString(pc.title, def.title),
+      alignment: safeString(pc.alignment, def.alignment) as any,
+      background: safeString(pc.background, def.background),
+      deity: safeString(pc.deity, def.deity),
+      notes: safeString(pc.notes, def.notes),
+
+      // Number fields
+      level: safeNumber(pc.level, def.level, 1, 20),
+      maxHitPoints: safeNumber(pc.maxHitPoints, def.maxHitPoints, 1),
+      hitPoints: safeNumber(pc.hitPoints, def.hitPoints),
+      tempHitPoints: safeNumber(pc.tempHitPoints, def.tempHitPoints, 0),
+      armorClass: pc.armorClass === 10 ? 0 : safeNumber(pc.armorClass, def.armorClass),
+      speed: safeNumber(pc.speed, def.speed, 0),
+      xp: safeNumber(pc.xp, def.xp, 0),
+      exhaustion: safeNumber(pc.exhaustion, def.exhaustion, 0, 6),
+      proficiencyBonus: safeNumber(pc.proficiencyBonus, def.proficiencyBonus, 2, 6),
+      passivePerception: safeNumber(pc.passivePerception, def.passivePerception),
+      carryingCapacity: safeNumber(pc.carryingCapacity, def.carryingCapacity, 0),
+
+      // Object fields
+      stats: safeStats(pc.stats),
+      skills: safeSkills(pc.skills),
+      savingThrows: safeSavingThrows(pc.savingThrows),
+      currency: safeCurrency(pc.currency),
+      hitDice: pc.hitDice && typeof pc.hitDice === 'object' ? { ...def.hitDice, ...pc.hitDice } : def.hitDice,
+      deathSaves: safeDeathSaves(pc.deathSaves),
+      spellSlots: pc.spellSlots && typeof pc.spellSlots === 'object' ? { ...def.spellSlots, ...pc.spellSlots } : def.spellSlots,
+
+      // Array fields
+      gear: safeArray(pc.gear, def.gear),
+      customGear: safeArray(pc.customGear, def.customGear),
+      spells: safeArray(pc.spells, def.spells),
+      customSpells: safeArray(pc.customSpells, def.customSpells),
+      bonuses: safeArray(pc.bonuses, def.bonuses),
+      customBonuses: safeArray(pc.customBonuses, def.customBonuses),
+      customTalents: safeArray(pc.customTalents, def.customTalents),
+      conditions: safeArray(pc.conditions, def.conditions),
+      languages: safeArray(pc.languages, def.languages),
+      customLanguages: safeArray(pc.customLanguages, def.customLanguages),
+    };
+  } catch (e) {
+    console.error("Error ensuring player character integrity:", e);
+    return def;
+  }
 }
 
 // 5E Proficiency Bonus: ceil(level / 4) + 1
