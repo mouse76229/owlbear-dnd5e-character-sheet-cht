@@ -14,32 +14,17 @@
   <h1 slot="header">資訊</h1>
   <div class="flex flex-col">
     <div>
-      這是一個非官方的 Shadowdark 角色追蹤工具！
-      <a
-        target="_blank"
-        href="https://www.thearcanelibrary.com/pages/shadowdark"
-        >購買 Shadowdark
-      </a>
+      這是一個非官方的 D&D 5E 角色追蹤工具，專為 Owlbear Rodeo 虛擬桌遊平台設計！
     </div>
 
-    <h2>匯入</h2>
+    <h2>功能</h2>
     <div>
-      本工具可直接從 <a href="https://www.shadowdarklings.net" target="_blank"
-        >Shadowdarkling Character Creator</a
-      > 匯入您的角色。也能匯入先前匯出的 JSON 檔案。
+      本工具提供完整的 D&D 5E 角色卡功能，包含屬性值、技能、裝備、法術管理等，讓您在 Owlbear Rodeo 中輕鬆管理角色資訊。
     </div>
 
     <h2>儲存</h2>
     <div>
-      本工具會自動將您的角色卡儲存於瀏覽器的 Local
-      Storage。若您刪除本網站的儲存資料，請務必先匯出角色 JSON 檔。
-    </div>
-
-    <h2>聯絡</h2>
-    <div>
-      您可以透過 <a href="mailto:maxpaulus43@gmail.com" target="_blank"
-        >maxpaulus43@gmail.com</a
-      > 聯絡我（英文），我也會出沒在 Shadowdark 官方 Discord 頻道。
+      本工具會自動將您的角色卡儲存於瀏覽器的 Local Storage 及 Owlbear Rodeo 雲端。若您刪除本網站的儲存資料，請務必先匯出角色 JSON 檔。
     </div>
 
     <h2>問題回報</h2>
@@ -53,34 +38,28 @@
       </a>
     </div>
 
-    <h2>致謝</h2>
-    <div>看看其他很棒的 Shadowdark 工具！</div>
+    <h2>原作者</h2>
     <div>
-      <a href="https://shadowdarklings.net" target="_blank"
-        >https://shadowdarklings.net</a
-      >
-    </div>
-    <div>
-      <a href="https://www.shadowdork.com" target="_blank"
-        >https://www.shadowdork.com</a
-      >
+      本工具改編自 maxpaulus43 的 Shadowdark 角色卡專案，您可以透過 <a href="mailto:maxpaulus43@gmail.com" target="_blank"
+        >maxpaulus43@gmail.com</a
+      > 聯絡原作者（英文）。
     </div>
 
     <h2>授權</h2>
     <div>
-      本工具為獨立產品，依據 Shadowdark RPG Third-Party License 發布，與 The
-      Arcane Library, LLC 無關。 Shadowdark RPG © 2023 The Arcane Library, LLC.
+      本工具為非官方粉絲作品，與 Wizards of the Coast 無關。
+      Dungeons & Dragons、D&D 及相關標誌為 Wizards of the Coast LLC 的商標。
     </div>
     <hr />
     <div>
-      免責聲明：我已獲得 The Arcane Library
-      明確許可，可於本工具轉載角色創建資料（如天賦表）。
+      免責聲明：本工具僅供個人遊戲使用，不包含任何受版權保護的遊戲規則內容。
+      使用者應自行擁有 D&D 5E 相關規則書籍。
     </div>
 
     <a
       href="https://www.buymeacoffee.com/tKsqTr4ABl"
       target="_blank"
-      class="pirata text-xl rounded-md p-2 self-center">請我吃份口糧 🍖</a
+      class="pirata text-xl rounded-md p-2 self-center">請原作者吃份口糧 🍖</a
     >
   </div>
 </Modal>
