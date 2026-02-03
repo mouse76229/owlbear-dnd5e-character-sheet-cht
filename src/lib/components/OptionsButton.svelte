@@ -9,7 +9,11 @@
   import { CurrentSaveSlot, NUM_SLOTS } from "../services/SaveSlotTracker";
   import OBR from "@owlbear-rodeo/sdk";
   import { Settings } from "../services/SettingsTracker";
-  import { isGM, isTrackedPlayerGM } from "../services/OBRHelper";
+  import {
+    isGM,
+    isTrackedPlayerGM,
+    clearOBRMetadata,
+  } from "../services/OBRHelper";
   export let files: FileList | undefined;
   let showModal = false;
 
@@ -93,6 +97,20 @@
           clearLocalStorage();
         }}>清除所有暫存資料（請謹慎操作）</button
       >
+      {#if OBR.isAvailable}
+        <button
+          class="bg-red-700"
+          on:click={() => {
+            if (
+              confirm(
+                "確定要清除 Owlbear Rodeo 雲端資料嗎？\n此操作將清除所有存檔欄位的雲端資料。\n\nClear Owlbear Rodeo cloud data?\nThis will clear all save slots in the cloud.",
+              )
+            ) {
+              clearOBRMetadata();
+            }
+          }}>清除 OBR 雲端資料（修復損壞資料）</button
+        >
+      {/if}
     {/if}
   </div>
 </Modal>

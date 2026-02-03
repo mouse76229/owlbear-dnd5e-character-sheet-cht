@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import type { Player } from "@owlbear-rodeo/sdk";
-import { defaultPC } from "../model/PlayerCharacter";
+import { defaultPC, ensurePlayerCharacterIntegrity } from "../model/PlayerCharacter";
 import { PlayerCharacterStore } from "../model/PlayerCharacter";
 import { debounce } from "../utils";
 import { writable, get, derived } from "svelte/store";
@@ -35,6 +35,59 @@ export const GmPlayer = writable<Player>();
 export const isTrackedPlayerGM = derived(TrackedPlayer, ($trackedPlayer) => {
   return $trackedPlayer == get(GmId);
 });
+
+/**
+ * 驗證並清理 PlayerMetaData，防止損壞的資料導致崩潰
+ */
+function sanitizePlayerMetaData(pmd: any): PlayerMetaData {
+  if (!pmd || typeof pmd !== 'object') return {};
+
+  const result: PlayerMetaData = {};
+
+  for (let i = 1; i <= NUM_SLOTS; i++) {
+    const slotKey = `slot-${i}` as keyof PlayerMetaData;
+    const slotData = pmd[slotKey];
+
+    if (slotData) {
+      try {
+        // 使用 ensurePlayerCharacterIntegrity 驗證並修復資料
+        result[slotKey] = ensurePlayerCharacterIntegrity(slotData);
+      } catch (e) {
+        console.warn(`Failed to sanitize slot ${i}, using default:`, e);
+        result[slotKey] = defaultPC();
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * 清除 OBR metadata 中的所有角色資料
+ * 用於手動重置損壞的雲端資料
+ */
+export async function clearOBRMetadata() {
+  if (!OBR.isAvailable) {
+    console.warn("OBR is not available, cannot clear metadata");
+    return;
+  }
+
+  try {
+    await OBR.player.setMetadata({
+      [pluginId("sheetData")]: {},
+    });
+    console.log("OBR metadata cleared successfully");
+
+    // 重新載入預設角色
+    PlayerCharacterStore.set(defaultPC());
+
+    alert("已清除 Owlbear Rodeo 雲端資料，請重新載入擴充套件。\n\nOwlbear Rodeo cloud data cleared. Please reload the extension.");
+  } catch (e) {
+    console.error("Failed to clear OBR metadata:", e);
+    alert("清除失敗，請查看控制台錯誤訊息。\n\nFailed to clear data. Check console for errors.");
+  }
+}
+
 
 export async function init() {
   OBR.onReady(async () => {
@@ -75,11 +128,13 @@ async function initGM() {
   PartyStore.subscribe(async (party) => {
     const pmd: { [pId: string]: PlayerMetaData } = {};
 
-    // add GM metadata too
-    pmd[OBR.player.id] = (await OBR.player.getMetadata())[pluginId("sheetData")];
+    // add GM metadata too (with sanitization)
+    const gmMetadata = (await OBR.player.getMetadata())[pluginId("sheetData")];
+    pmd[OBR.player.id] = sanitizePlayerMetaData(gmMetadata);
 
     for (const p of party) {
-      pmd[p.id] = p.metadata[pluginId("sheetData")];
+      // Sanitize each player's metadata to prevent corrupted data
+      pmd[p.id] = sanitizePlayerMetaData(p.metadata[pluginId("sheetData")]);
     }
     PlayerMetaDataMapStore.set(pmd);
 
@@ -116,11 +171,13 @@ async function initPlayer() {
 
   const playerMd: { [key: string]: PlayerCharacter } = {};
   for (let i = 1; i <= NUM_SLOTS; i++) {
+    // Load from LocalStorage (already has validation)
     playerMd[`slot-${i}`] =
       (await loadPlayerFromLocalStorage(i)) ?? defaultPC();
   }
 
-  PlayerMetaDataStore.set(playerMd);
+  // Sanitize the metadata before setting
+  PlayerMetaDataStore.set(sanitizePlayerMetaData(playerMd));
 
   PlayerCharacterStore.subscribe(
     debounce((pc) => {
