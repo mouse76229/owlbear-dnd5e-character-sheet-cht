@@ -4,6 +4,6 @@
 </script>
 
 <div class="bg-white h-screen w-full flex flex-col justify-center items-center">
-  <h2>ShadowDark Notification</h2>
+  <h2>DnD Notification</h2>
   <div>{msg}</div>
 </div>
