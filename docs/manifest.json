@@ -1,12 +1,12 @@
 {
   "name": "D&D 5E 角色卡",
   "version": "1.0.2",
-  "icon": "/owlbear-shadowdark-character-sheet_CHT/icon.png",
+  "icon": "/owlbear-dnd5e-character-sheet-cht/icon.png",
   "manifest_version": 1,
   "action": {
     "title": "D&D 5E 角色卡",
-    "icon": "/owlbear-shadowdark-character-sheet_CHT/icon.png",
-    "popover": "/owlbear-shadowdark-character-sheet_CHT/index.html",
+    "icon": "/owlbear-dnd5e-character-sheet-cht/icon.png",
+    "popover": "/owlbear-dnd5e-character-sheet-cht/index.html",
     "height": 720,
     "width": 1000
   }
